@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2022, Nordic Semiconductor
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 pluginManagement {
