@@ -3,8 +3,8 @@ package no.nordicsemi.android.ei.util
 import androidx.annotation.Keep
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
-import io.runtime.mcumgr.dfu.mcuboot.model.ImageSet
-import io.runtime.mcumgr.dfu.mcuboot.model.TargetImage
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.model.ImageSet
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.model.TargetImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
