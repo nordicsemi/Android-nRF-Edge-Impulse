@@ -77,6 +77,7 @@ import no.nordicsemi.android.ei.viewmodels.state.DeviceState
 import no.nordicsemi.android.ei.viewmodels.state.InferencingState
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class ProjectViewModel @Inject constructor(
@@ -272,7 +273,7 @@ class ProjectViewModel @Inject constructor(
                     device.deviceId !in response.devices.map {
                         it.deviceId
                     }
-                }.onEach {
+                }.forEach {
                     commsManagers[it.deviceId]?.let { commsManager ->
                         disconnect(commsManager.device)
                     }
@@ -423,7 +424,7 @@ class ProjectViewModel @Inject constructor(
      * Disconnects all devices
      */
     fun disconnectAllDevices() {
-        commsManagers.onEach {
+        commsManagers.forEach {
             it.value.disconnect()
         }
         commsManagers.clear()
@@ -536,7 +537,7 @@ class ProjectViewModel @Inject constructor(
             keys = keys
         ).let { deploymentInfoResponse ->
             guard(deploymentInfoResponse.success) {
-                Failed(state = Downloading)
+                deploymentState = Failed(state = Downloading)
                 throw Throwable(deploymentInfoResponse.error)
             }
             return true
@@ -572,7 +573,7 @@ class ProjectViewModel @Inject constructor(
                 }
             }
         } else {
-            Failed(state = Downloading)
+            deploymentState = Failed(state = Downloading)
             throw Throwable("Firmware not available, for download")
         }
     }
@@ -724,7 +725,7 @@ class ProjectViewModel @Inject constructor(
             viewModelScope.launch {
                 var counter = 0
                 while (counter < 50) {
-                    delay(1000)
+                    delay(1.seconds)
                     if (deploymentState !is ApplyingUpdate) {
                         break
                     }

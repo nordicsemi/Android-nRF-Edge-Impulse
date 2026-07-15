@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Delete device response.
  *
- * @see https://docs.edgeimpulse.com/reference#deletedevice
+ * See [Documentation](https://docs.edgeimpulse.com/reference#deletedevice) for details.
  */
 data class DeleteDeviceResponse(
     val success: Boolean = false,

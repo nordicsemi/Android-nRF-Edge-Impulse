@@ -196,7 +196,7 @@ private fun Login(
             label = { Text(stringResource(R.string.field_username)) },
             leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
             keyboardOptions = KeyboardOptions(
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 imeAction = ImeAction.Next,
             ),
             keyboardActions = KeyboardActions(onNext = {
@@ -229,7 +229,7 @@ private fun Login(
                 }
             },
             keyboardOptions = KeyboardOptions(
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 imeAction = ImeAction.Done,
             ),
             keyboardActions = KeyboardActions {
@@ -369,7 +369,7 @@ private fun SmallScreenLandscapeLogin(
                 label = { Text(stringResource(R.string.field_username)) },
                 leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(
-                    autoCorrect = false,
+                    autoCorrectEnabled = false,
                     imeAction = ImeAction.Next,
                 ),
                 keyboardActions = KeyboardActions(onNext = {
@@ -398,7 +398,7 @@ private fun SmallScreenLandscapeLogin(
                     }
                 },
                 keyboardOptions = KeyboardOptions(
-                    autoCorrect = false,
+                    autoCorrectEnabled = false,
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Password
                 ),
@@ -486,7 +486,7 @@ private fun MultiFactorAuthenticationDialog(
                     label = { Text(stringResource(R.string.field_code)) },
                     leadingIcon = { Icon(Icons.Outlined.Pin, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Number
                     ),

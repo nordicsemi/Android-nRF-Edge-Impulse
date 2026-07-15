@@ -13,6 +13,7 @@ import androidx.activity.ComponentActivity
 
 /**
  * This is [android.accounts.AccountAuthenticatorActivity] converted to [AppCompatActivity].
+ *
  * @see <a href="https://developer.android.com/reference/android/accounts/AccountAuthenticatorActivity">AccountAuthenticatorActivity</a>
  */
 open class AccountAuthenticatorActivity: ComponentActivity() {

@@ -56,7 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.model.Device
 import no.nordicsemi.android.ei.viewmodels.state.DeviceState
@@ -336,7 +336,7 @@ private fun Capabilities(device: Device) {
 
 @Composable
 private fun SensorInformation(device: Device) {
-    device.sensors.takeIf { sensors -> sensors.isNotEmpty() }?.onEach { sensor ->
+    device.sensors.takeIf { sensors -> sensors.isNotEmpty() }?.forEach { sensor ->
         SectionTitle(text = sensor.name)
         RowItem(
             modifier = Modifier.size(24.dp),

@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.model
 /**
  * Snapshot streaming provides the user with a preview of a connected camera in the Studio.
  *
- * @see https://docs.edgeimpulse.com/reference#remote-management
+ * See [Documentation](https://docs.edgeimpulse.com/reference#remote-management) for details.
  */
 sealed class SnapshotStreaming {
     /**

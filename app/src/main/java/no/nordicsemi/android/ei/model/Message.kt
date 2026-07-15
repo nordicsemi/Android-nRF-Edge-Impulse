@@ -37,7 +37,7 @@ sealed class Message {
     /**
      * Progress event messages
      *
-     * @see https://docs.edgeimpulse.com/reference#remote-management
+     * See [Documentation](https://docs.edgeimpulse.com/reference#remote-management).
      */
     sealed class Sample : Message() {
         data class Request(

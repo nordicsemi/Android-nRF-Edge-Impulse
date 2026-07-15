@@ -111,7 +111,7 @@ class EiWebSocket @Inject constructor(
                 webSocket?.send("2")
             }
         }
-        Timer().scheduleAtFixedRate(pingTask, 20000, 20000)
+        Timer().schedule(pingTask, 20000, 20000)
     }
 
     /**

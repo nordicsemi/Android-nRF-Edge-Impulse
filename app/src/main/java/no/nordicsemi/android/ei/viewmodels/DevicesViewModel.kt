@@ -55,7 +55,6 @@ class DevicesViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        super.onCleared()
         stopScan()
     }
 

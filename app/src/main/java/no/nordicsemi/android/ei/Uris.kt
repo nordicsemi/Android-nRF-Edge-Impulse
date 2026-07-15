@@ -7,8 +7,9 @@
 package no.nordicsemi.android.ei
 
 import android.net.Uri
+import androidx.core.net.toUri
 
 object Uris {
-    val ForgetPassword: Uri = Uri.parse("https://studio.edgeimpulse.com/forgot-password")
-    val SignUp: Uri = Uri.parse("https://studio.edgeimpulse.com/signup")
+    val ForgetPassword: Uri = "https://studio.edgeimpulse.com/forgot-password".toUri()
+    val SignUp: Uri = "https://studio.edgeimpulse.com/signup".toUri()
 }

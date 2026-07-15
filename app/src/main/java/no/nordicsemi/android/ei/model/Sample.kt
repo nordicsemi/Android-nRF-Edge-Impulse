@@ -26,12 +26,12 @@ data class Sample(
     val added: String,
     val boundingBoxes: List<BoundingBox>
 ) {
-    inner class Sensor(
+    class Sensor(
         val name: String,
         val units: String
     )
 
-    inner class BoundingBox(
+    class BoundingBox(
         val label: String,
         val x: Int,
         val y: Int,

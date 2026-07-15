@@ -8,7 +8,8 @@ package no.nordicsemi.android.ei.service.param
 
 /**
  * Start sampling request body params
- * @see https://docs.edgeimpulse.com/reference#startsampling
+ *
+ * See [Documentation](https://docs.edgeimpulse.com/reference#startsampling) for details.
  *
  * @param label         Label to be used during sampling.
  * @param lengthMs      Requested length of the sample (in ms).

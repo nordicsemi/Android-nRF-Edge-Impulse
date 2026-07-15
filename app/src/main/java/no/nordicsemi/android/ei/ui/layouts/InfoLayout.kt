@@ -274,17 +274,3 @@ fun LocationTurnedOffInfo(
         ) { Text(text = stringResource(R.string.action_permission_settings)) }
     }
 }
-
-@Composable
-fun NavigateToSettings() {
-    val context = LocalContext.current
-    val packageName = LocalContext.current.packageName
-    startActivity(
-        context,
-        Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", packageName, null)
-        ),
-        null
-    )
-}
