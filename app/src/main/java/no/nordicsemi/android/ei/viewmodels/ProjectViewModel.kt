@@ -68,10 +68,8 @@ import no.nordicsemi.android.ei.model.Device
 import no.nordicsemi.android.ei.model.InferencingMessage.InferencingRequest
 import no.nordicsemi.android.ei.model.Message.Sample
 import no.nordicsemi.android.ei.model.Sensor
-import no.nordicsemi.android.ei.repository.DevicesRepository
 import no.nordicsemi.android.ei.repository.ProjectDataRepository
 import no.nordicsemi.android.ei.repository.ProjectRepository
-import no.nordicsemi.android.ei.repository.UserDataRepository
 import no.nordicsemi.android.ei.util.ZipPackage
 import no.nordicsemi.android.ei.util.guard
 import no.nordicsemi.android.ei.viewmodels.event.Event
@@ -86,7 +84,6 @@ class ProjectViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val userManager: UserManager,
     private val projectRepository: ProjectRepository,
-    private val devicesRepository: DevicesRepository,
     private val client: OkHttpClient,
     private val gson: Gson
 ) : AndroidViewModel(context as Application), FirmwareUpgradeCallback<FirmwareUpgradeManager.State> {
@@ -102,9 +99,6 @@ class ProjectViewModel @Inject constructor(
 
     private val projectManager: ProjectManager
         get() = userComponentEntryPoint.getProjectManager()
-
-    private val userDataManager: UserDataRepository
-        get() = userComponentEntryPoint.userDataRepository()
 
     private val projectDataRepository: ProjectDataRepository
         get() = EntryPoints
@@ -266,9 +260,9 @@ class ProjectViewModel @Inject constructor(
             }
         }
         viewModelScope.launch(handler) {
-            devicesRepository.listDevices(
-                token = userDataManager.token,
+            projectRepository.listDevices(
                 projectId = projectDataRepository.project.id,
+                keys = projectDataRepository.developmentKeys
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
@@ -492,8 +486,8 @@ class ProjectViewModel @Inject constructor(
         }
         deploymentJob = viewModelScope.launch(handler) {
             projectRepository.deploymentInfo(
+                keys = keys,
                 projectId = project.id,
-                keys = keys
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
@@ -523,8 +517,8 @@ class ProjectViewModel @Inject constructor(
      */
     private suspend fun build() {
         projectRepository.buildOnDeviceModels(
+            keys = keys,
             projectId = project.id,
-            keys = keys
         ).let { response ->
             guard(response.success) {
                 // Disconnect the websocket in case the build command fails
@@ -539,8 +533,8 @@ class ProjectViewModel @Inject constructor(
      */
     private suspend fun hasDeployment(): Boolean {
         projectRepository.deploymentInfo(
+            keys = keys,
             projectId = project.id,
-            keys = keys
         ).let { deploymentInfoResponse ->
             guard(deploymentInfoResponse.success) {
                 deploymentState = Failed(state = Downloading)
@@ -557,8 +551,8 @@ class ProjectViewModel @Inject constructor(
         deploymentState = Downloading
         if (hasDeployment()) {
             projectRepository.downloadBuild(
+                keys = keys,
                 projectId = project.id,
-                keys = keys
             ).let { downloadResponse ->
                 guard(downloadResponse.isSuccessful) {
                     deploymentState = Failed(Downloading)
@@ -652,11 +646,11 @@ class ProjectViewModel @Inject constructor(
                     .also { isDeviceRenameRequested = false }
             }
         }) {
-            devicesRepository.renameDevice(
-                token = userDataManager.token,
+            projectRepository.renameDevice(
+                keys = keys,
                 projectId = project.id,
                 deviceId = device.deviceId,
-                name = name
+                name = name,
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
@@ -678,10 +672,10 @@ class ProjectViewModel @Inject constructor(
                     .also { isDeviceRenameRequested = false }
             }
         }) {
-            devicesRepository.deleteDevice(
-                token = userDataManager.token,
+            projectRepository.deleteDevice(
+                keys = keys,
                 projectId = project.id,
-                deviceId = device.deviceId
+                deviceId = device.deviceId,
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
