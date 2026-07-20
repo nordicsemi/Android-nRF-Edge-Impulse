@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Body parameters for "Delete current user" request.
  *
- * @see <a href="https://docs.edgeimpulse.com/reference/edge-impulse-api/user/delete_current_user">Docs: Delete current user</a>
+ * @see <a href="https://docs.edgeimpulse.com/apis/studio/user/delete-current-user">Docs: Delete current user</a>
  */
 data class DeleteCurrentUserRequest(
     /** Password. */

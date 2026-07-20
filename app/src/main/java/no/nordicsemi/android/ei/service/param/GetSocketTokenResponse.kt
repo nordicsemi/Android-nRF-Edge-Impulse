@@ -11,6 +11,10 @@ import no.nordicsemi.android.ei.model.SocketToken
 /**
  * Response to GetSocketToken request.
  *
- * See [Documentation](https://docs.edgeimpulse.com/reference#getsockettoken) for details.
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/projects/get-socket-token) for details.
  */
-class GetSocketTokenResponse(val success: Boolean, val error: String?, val token: SocketToken)
+class GetSocketTokenResponse(
+    override val success: Boolean,
+    override val error: String?,
+    val token: SocketToken
+): BaseResponse

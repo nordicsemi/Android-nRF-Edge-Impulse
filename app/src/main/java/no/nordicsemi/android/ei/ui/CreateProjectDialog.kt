@@ -44,7 +44,7 @@ fun CreateProjectDialog(
     onCreateProject: (String, ProjectVisibility) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isError by rememberSaveable { mutableStateOf(false) }
     var projectName by rememberSaveable { mutableStateOf("") }
@@ -83,7 +83,7 @@ fun CreateProjectDialog(
                         }
                     },
                     keyboardOptions = KeyboardOptions(
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         imeAction = ImeAction.Next
                     ),
                     keyboardActions = KeyboardActions(onNext = {

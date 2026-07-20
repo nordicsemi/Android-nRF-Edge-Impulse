@@ -93,6 +93,7 @@ import coil.transform.CircleCropTransformation
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.model.Collaborator
 import no.nordicsemi.android.ei.model.Project
+import no.nordicsemi.android.ei.service.param.MissingKeyException
 import no.nordicsemi.android.ei.ui.layouts.UserAppBar
 import no.nordicsemi.android.ei.ui.layouts.UserAppBarImageSize
 import no.nordicsemi.android.ei.ui.layouts.isScrollingUp
@@ -122,6 +123,7 @@ fun Dashboard(
     val lazyListState = rememberLazyListState()
 
     var showCreateProjectDialog by rememberSaveable { mutableStateOf(false) }
+    var missingKey by remember { mutableStateOf<MissingKeyException?>(null) }
     var showAboutDialog by rememberSaveable { mutableStateOf(false) }
     val isLargeScreen =
         LocalConfiguration.current.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK >= Configuration.SCREENLAYOUT_SIZE_LARGE
@@ -130,6 +132,7 @@ fun Dashboard(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.eventFlow.collect {
                 when (it) {
+                    is Event.Project.Selected -> onProjectSelected((it).project)
                     is Event.Project.Created -> {
                         showCreateProjectDialog = false
                         snackbarHostState.showSnackbar(
@@ -139,17 +142,20 @@ fun Dashboard(
                             )
                         )
                     }
-
-                    is Event.Project.Selected -> onProjectSelected((it).project)
                     is Event.Error -> {
                         showCreateProjectDialog = false
-                        snackbarHostState.showSnackbar(
-                            message = when (it.throwable) {
-                                is UnknownHostException -> context.getString(R.string.error_no_internet)
-                                else -> it.throwable.localizedMessage
+                        missingKey = null
+
+                        when (it.throwable) {
+                            is MissingKeyException -> missingKey = it.throwable
+                            is UnknownHostException -> snackbarHostState.showSnackbar(
+                                message = context.getString(R.string.error_no_internet)
+                            )
+                            else -> snackbarHostState.showSnackbar(
+                                message = it.throwable.localizedMessage
                                     ?: context.getString(R.string.error_refreshing_failed)
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -262,6 +268,22 @@ fun Dashboard(
                     viewModel.createProject(projectName, projectVisibility)
                 },
                 onDismiss = { showCreateProjectDialog = !showCreateProjectDialog }
+            )
+        }
+        missingKey?.let { key ->
+            val name = stringResource(R.string.label_key_name_default)
+            CreateKeyDialog(
+                type = key.type,
+                onCreateKey = {
+                    missingKey = null
+                    
+                    viewModel.createKey(
+                        project = key.project,
+                        type = key.type,
+                        name = name,
+                    )
+                },
+                onDismiss = { missingKey = null }
             )
         }
         if (showAboutDialog) {

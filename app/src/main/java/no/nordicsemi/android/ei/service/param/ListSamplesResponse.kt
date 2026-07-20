@@ -11,10 +11,10 @@ import no.nordicsemi.android.ei.model.Sample
 /**
  * Retrieve Retrieve all raw data by category.
  *
- * @see <a href="https://docs.edgeimpulse.com/reference#listsamples">Docs: List Sample</a>
+ * @see <a href="https://docs.edgeimpulse.com/apis/studio/raw-data/list-samples">Docs: List Sample</a>
  */
 data class ListSamplesResponse(
-    val success: Boolean = false,
+    override val success: Boolean,
+    override val error: String?,
     val samples: List<Sample>,
-    val error: String?
-)
+): BaseResponse

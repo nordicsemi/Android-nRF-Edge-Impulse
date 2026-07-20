@@ -7,12 +7,12 @@
 package no.nordicsemi.android.ei.service.param
 
 /**
- * Create new project response.
+ * Response for "Add HMAC Key" request.
  *
- * @see <a href="https://docs.edgeimpulse.com/apis/studio/projects/create-new-project">Docs: Create new project</a>
+ * @see <a href="https://docs.edgeimpulse.com/apis/studio/projects/add-hmac-key</a>
  */
-data class CreateProjectResponse(
+data class AddHMACKeyResponse(
     override val success: Boolean,
     override val error: String?,
-    val id: Int,
+    val id: Number?,
 ): BaseResponse

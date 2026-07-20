@@ -9,11 +9,11 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Response to get deployment info.
  *
- * See [Documentation](https://docs.edgeimpulse.com/reference#getdeployment) for details.
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/deployment/get-deployment-info) for details.
  */
 data class DeploymentInfoResponse(
-    val success: Boolean,
-    val error: String?,
+    override val success: Boolean,
+    override val error: String?,
     val hasDeployment: Boolean,
     val version: Int
-)
+): BaseResponse
