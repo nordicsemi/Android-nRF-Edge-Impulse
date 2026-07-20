@@ -19,7 +19,7 @@ class UserManager @Inject constructor(
     private val userComponentProvider: Provider<UserComponent.Builder>
 ) {
     /**
-     *  UserComponent is specific to a logged in user. Holds an instance of
+     *  UserComponent is specific to a logged-in user. Holds an instance of
      *  UserComponent. This determines if the user is logged in or not, when the
      *  user logs in, a new Component will be created.
      *  When the user logs out, this will be null.

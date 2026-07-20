@@ -54,7 +54,7 @@ class LoginViewModel @Inject constructor(
                     }
                 } else {
                     response.error?.takeIf {
-                        // Error thrown by edge impulse when two factor authentication is enabled.
+                        // Error thrown by edge impulse when 2FA (two-factor authentication) is enabled.
                         // https://docs.edgeimpulse.com/reference/edge-impulse-api/login/get_jwt_token
                         it.contains("ERR_TOTP_TOKEN IS REQUIRED")
                     }?.let {
