@@ -15,7 +15,7 @@ import no.nordicsemi.android.ei.repository.ProjectRepository
 import retrofit2.HttpException
 import java.io.IOException
 
-//Edge Impulse paging API is 0 based https://studio.edgeimpulse.com/v1/api/projectId/raw-data
+//Edge Impulse paging API is 0 based https://docs.edgeimpulse.com/apis/studio/raw-data/list-samples
 private const val LIST_SAMPLES_PAGE_INDEX = 0
 
 class SamplePagingSource(
