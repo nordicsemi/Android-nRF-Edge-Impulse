@@ -26,12 +26,21 @@ data class Sample(
     val added: String,
     val boundingBoxes: List<BoundingBox>
 ) {
-    class Sensor(
+    override fun hashCode(): Int = id.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Sample
+        return id == other.id
+    }
+
+    data class Sensor(
         val name: String,
         val units: String
     )
 
-    class BoundingBox(
+    data class BoundingBox(
         val label: String,
         val x: Int,
         val y: Int,
