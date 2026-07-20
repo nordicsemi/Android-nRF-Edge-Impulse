@@ -27,6 +27,7 @@ import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.History
@@ -56,7 +57,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlin.time.Instant
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.model.Device
 import no.nordicsemi.android.ei.viewmodels.state.DeviceState
@@ -69,6 +69,7 @@ import no.nordicsemi.android.ei.viewmodels.state.buttonBackgroundColor
 import no.nordicsemi.android.ei.viewmodels.state.indicatorColor
 import java.text.DateFormat
 import java.util.Date
+import kotlin.time.Instant
 
 @Composable
 fun DeviceDetails(
@@ -100,7 +101,6 @@ fun DeviceDetails(
                         CONNECTING,
                         AUTHENTICATING,
                         AUTHENTICATED -> onDisconnectClick()
-
                         else -> {}
                     }
                 },
@@ -117,7 +117,6 @@ fun DeviceDetails(
                         IN_RANGE, NOT_IN_RANGE -> stringResource(id = R.string.action_connect)
                         CONNECTING,
                         AUTHENTICATING -> stringResource(id = R.string.action_cancel)
-
                         AUTHENTICATED -> stringResource(id = R.string.action_disconnect)
                         else -> stringResource(id = R.string.action_connect)
                     },
@@ -139,6 +138,8 @@ fun DeviceDetails(
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
+                modifier = Modifier
+                    .defaultMinSize(minWidth = 145.dp),
                 onClick = { onDeleteClick(device) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
@@ -159,8 +160,8 @@ private fun DeviceName(
     var onEditClick by rememberSaveable { mutableStateOf(false) }
     var deviceName by rememberSaveable(device) { mutableStateOf(device.name) }
 
-    Crossfade(targetState = onEditClick, label = "name") {
-        when (it) {
+    Crossfade(targetState = onEditClick, label = "name") { editable ->
+        when (editable) {
             true -> {
                 Row(
                     modifier = Modifier
@@ -179,6 +180,16 @@ private fun DeviceName(
                                 imageVector = Icons.AutoMirrored.Outlined.Label,
                                 contentDescription = null
                             )
+                        },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { deviceName = "" }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.DeleteOutline,
+                                    contentDescription = "Clear text"
+                                )
+                            }
                         },
                         singleLine = true,
                         isError = deviceName.isBlank()
@@ -366,7 +377,7 @@ private fun SectionTitle(text: String, content: @Composable () -> Unit = {}) {
             modifier = Modifier
                 .weight(1.0f),
             text = text,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.labelLarge
         )
         content()
     }
