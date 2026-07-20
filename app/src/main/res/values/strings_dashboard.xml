@@ -28,7 +28,7 @@
 
     <string name="dialog_title_create_key">Add a new %s</string>
     <string name="label_key_name">Name</string>
-    <string name="label_key_name_default">nRF Edge Impulse</string>
+    <string name="label_key_name_default">nRF Edge Impulse for Android</string>
     <string name="label_key_role">Role</string>
     <string name="label_key_role_admin">Admin</string>
     <string name="label_key_dev">Set as Development Key</string>

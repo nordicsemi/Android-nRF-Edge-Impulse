@@ -13,6 +13,7 @@ import no.nordicsemi.android.ei.model.Category
 import no.nordicsemi.android.ei.model.DevelopmentKeys
 import no.nordicsemi.android.ei.service.EiService
 import no.nordicsemi.android.ei.service.param.BuildOnDeviceModelRequest
+import no.nordicsemi.android.ei.service.param.RenameDeviceRequest
 import no.nordicsemi.android.ei.service.param.StartSamplingRequest
 import javax.inject.Inject
 
@@ -20,6 +21,11 @@ class ProjectRepository @Inject constructor(
     private val service: EiService,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
+
+    suspend fun listDevices(projectId: Int, keys: DevelopmentKeys) =
+        withContext(ioDispatcher) {
+            service.listDevices(apiKey = keys.apiKey, projectId = projectId)
+        }
 
     suspend fun listSamples(
         projectId: Int,
@@ -89,6 +95,34 @@ class ProjectRepository @Inject constructor(
         service.downloadBuild(
             apiKey = keys.apiKey,
             projectId = projectId
+        )
+    }
+
+    suspend fun renameDevice(
+        apiKey: String,
+        projectId: Int,
+        deviceId: String,
+        name: String
+    ) = withContext(ioDispatcher) {
+        service.renameDevice(
+            apiKey = apiKey,
+            projectId = projectId,
+            /*Encode thr url manually as retrofit does not correctly encode https://github.com/square/retrofit/issues/3080*/
+            deviceId = deviceId.replace(":", "%3A"),
+            renameDeviceRequest = RenameDeviceRequest(name = name)
+        )
+    }
+
+    suspend fun deleteDevice(
+        apiKey: String,
+        projectId: Int,
+        deviceId: String
+    ) = withContext(ioDispatcher) {
+        service.deleteDevice(
+            apiKey = apiKey,
+            projectId = projectId,
+            /*Encode thr url manually as retrofit does not correctly encode https://github.com/square/retrofit/issues/3080*/
+            deviceId = deviceId.replace(":", "%3A")
         )
     }
 }

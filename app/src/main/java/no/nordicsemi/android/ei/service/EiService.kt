@@ -138,20 +138,20 @@ interface EiService {
      * here if they connect to the remote management API or if they have sent data to the ingestion API
      * and had the device_id field set.
      *
-     * @param jwt       Token received during the login.
+     * @param apiKey       Token received during the login.
      * @param projectId Project ID.
      */
     @Headers("Accept: application/json", "Content-Type: application/json")
     @GET("api/{projectId}/devices")
     suspend fun listDevices(
-        @Header("x-jwt-token") jwt: String,
+        @Header("x-api-key") apiKey: String,
         @Path("projectId") projectId: Int
     ): ListDevicesResponse
 
     /**
      * Sets the current name for a device.
      *
-     * @param jwt                   Token received during the login.
+     * @param apiKey                Token received during the login.
      * @param projectId             Project ID.
      * @param deviceId              Device ID
      * @param renameDeviceRequest   Device rename request parameters
@@ -159,7 +159,7 @@ interface EiService {
     @Headers("Accept: application/json", "Content-Type: application/json")
     @POST("api/{projectId}/devices/{deviceId}/rename")
     suspend fun renameDevice(
-        @Header("x-jwt-token") jwt: String,
+        @Header("x-api-key") apiKey: String,
         @Path("projectId") projectId: Int,
         //Set value as encoded already as retrofit seem to encode colons with %253A instead of %3A
         @Path("deviceId", encoded = true) deviceId: String,
@@ -169,14 +169,14 @@ interface EiService {
     /**
      * Deletes a device
      *
-     * @param jwt                   Token received during the login.
+     * @param apiKey                Token received during the login.
      * @param projectId             Project ID.
      * @param deviceId              Device ID.
      */
     @Headers("Accept: application/json", "Content-Type: application/json")
     @DELETE("api/{projectId}/device/{deviceId}")
     suspend fun deleteDevice(
-        @Header("x-jwt-token") jwt: String,
+        @Header("x-api-key") apiKey: String,
         @Path("projectId") projectId: Int,
         //Set value as encoded already as retrofit seem to encode colons with %253A instead of %3A
         @Path("deviceId", encoded = true) deviceId: String
@@ -200,7 +200,7 @@ interface EiService {
      * Retrieve all the samples for a project.
      *
      * @param apiKey       Token received during the login.
-     * @param projectId    Project ID.
+     * @param projectId Project ID.
      */
     @Headers("Accept: application/json", "Content-Type: application/json")
     @GET("api/{projectId}/raw-data")
