@@ -8,7 +8,7 @@
 plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
 
-    // Nordic plugins are defined in https://github.com/NordicSemiconductor/Android-Gradle-Plugins
+    // Nordic plugins are defined in https://github.com/nordicsemi/Nordic-Gradle-Plugins
     alias(libs.plugins.nordic.android.application) apply false
     alias(libs.plugins.nordic.feature.hilt.compose) apply false
 }
