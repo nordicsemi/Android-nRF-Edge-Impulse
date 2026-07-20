@@ -116,12 +116,12 @@ private fun CollectedDataList(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = stringResource(id = R.string.label_col_sample_name),
+                            text = stringResource(id = R.string.label_col_label),
                             modifier = Modifier.weight(0.5f),
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = stringResource(id = R.string.label_col_label),
+                            text = stringResource(id = R.string.label_col_sample_name),
                             modifier = Modifier.weight(0.5f),
                             fontWeight = FontWeight.Bold,
                         )
@@ -197,10 +197,11 @@ fun CollectedDataRow(
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surface)
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = sample.filename,
+            text = sample.label,
             modifier = Modifier.weight(0.5f),
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold,
@@ -208,16 +209,16 @@ fun CollectedDataRow(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(modifier = Modifier.width(8.dp))
+
         Text(
-            text = sample.label,
+            text = sample.filename,
             modifier = Modifier.weight(0.5f),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(modifier = Modifier.width(8.dp))
+
         Text(
             text = "${sample.totalLengthMs.toInt() / 1000}s",
             modifier = Modifier.width(60.dp),
@@ -268,24 +269,22 @@ private fun ErrorItem(
     modifier: Modifier = Modifier,
     onClickRetry: () -> Unit
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    CompositionLocalProvider(
+        value = LocalContentColor provides MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     ) {
-        CompositionLocalProvider(
-            value =
-            LocalContentColor provides MaterialTheme.colorScheme.onSurface.copy(
-                alpha = 0.38f
-            )
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Icon(
                 painter = rememberVectorPainter(image = Icons.Filled.Error),
                 contentDescription = null,
                 modifier = Modifier.size(36.dp)
             )
-            Spacer(modifier = Modifier.width(16.dp))
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
@@ -293,7 +292,7 @@ private fun ErrorItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(modifier = Modifier.width(16.dp))
+
             Button(onClick = onClickRetry) {
                 Text(text = stringResource(R.string.action_try_again))
             }
