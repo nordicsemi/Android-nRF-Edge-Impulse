@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Body parameters for "Get JWT token" request.
  *
- * @see <a href="https://docs.edgeimpulse.com/reference#login-1">Docs: Get JWT token</a>
+ * @see <a href="https://docs.edgeimpulse.com/apis/studio/login/get-jwt-token">Docs: Get JWT token</a>
  */
 data class LoginRequest(
     /** Username or e-mail address. */

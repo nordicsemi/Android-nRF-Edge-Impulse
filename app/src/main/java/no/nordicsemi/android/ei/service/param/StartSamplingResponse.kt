@@ -11,12 +11,10 @@ package no.nordicsemi.android.ei.service.param
  *
  * See [Documentation](https://docs.edgeimpulse.com/apis/studio/devices/start-sampling#start-sampling) for details.
  *
- * @param success   Whether the option succeeded.
- * @param error     Optional error description (set if 'success' was false).
  * @param id        Sampling ID.
  */
 data class StartSamplingResponse(
-    val success: Boolean,
-    val error: String?,
+    override val success: Boolean,
+    override val error: String?,
     val id: Number?
-)
+): BaseResponse

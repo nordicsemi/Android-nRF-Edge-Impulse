@@ -10,24 +10,33 @@
     <string name="title_projects">Projects</string>
     <string name="content_description_user_image">User Image</string>
     <string name="label_no_projects">No projects created yet</string>
-    <string name="action_delete_user">Delete User</string>
-    <string name="action_logout">Logout</string>
-    <string name="action_create_project">Create new project</string>
     <string name="error_refreshing_failed">Refreshing failed.</string>
+
+    <string name="action_about">About</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_create_project">Create new project</string>
+    <string name="action_create">Create</string>
+    <string name="action_logout">Logout</string>
+    <string name="action_delete_user">Delete User</string>
 
     <string name="dialog_title_create_project">Create New Project</string>
     <string name="label_enter_project_name">Enter a name for your new project:</string>
     <string name="field_project_name">Project Name</string>
     <string name="label_empty_project_name_error">Project name cannot be empty.</string>
-    <string name="action_cancel">Cancel</string>
-    <string name="action_create">Create</string>
     <string name="label_select_project_visibility">Select project visibility:</string>
+
+    <string name="dialog_title_create_key">Add a new %s</string>
+    <string name="label_key_name">Name</string>
+    <string name="label_key_name_default">nRF Edge Impulse</string>
+    <string name="label_key_role">Role</string>
+    <string name="label_key_role_admin">Admin</string>
+    <string name="label_key_dev">Set as Development Key</string>
+    <string name="label_key_info">The key will be created with default parameters.</string>
 
     <string name="project_created_successfully">Project %s created.</string>
     <string name="label_please_wait">Please wait</string>
     <string name="label_fetching_development_keys_socket_token">Fetching development keys and socket token…</string>
-    <string name="action_about">About</string>
-    <string name="action_ok">OK</string>
 
     <string name="label_about">nRF Edge Impulse app is developed in collaboration with Edge Impulse
         to train and deploy embedded machine learning models on the Nordic Thingy:53 using

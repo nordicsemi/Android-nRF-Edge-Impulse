@@ -7,18 +7,37 @@
 package no.nordicsemi.android.ei.service.param
 
 import no.nordicsemi.android.ei.model.DevelopmentKeys
+import no.nordicsemi.android.ei.model.Project
 
 /**
- * Response body for a GetDevelopmentKeysRequest
+ * Response body for a get Development Keys request.
+ *
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/projects/get-development-keys) for details.
  */
 data class DevelopmentKeysResponse(
-    val apiKey: String = "undefined",
-    val hmacKey: String = "undefined",
-    val success: Boolean,
-    val error: String,
+    override val success: Boolean,
+    override val error: String?,
+    val apiKey: String?,
+    val hmacKey: String?,
+): BaseResponse
+
+fun DevelopmentKeysResponse.developmentKeys(project: Project) = DevelopmentKeys(
+    apiKey = requireNotNull(apiKey) { throw MissingKeyException(project, MissingKeyException.Type.API_KEY) },
+    hmacKey = requireNotNull(hmacKey) { throw MissingKeyException(project, MissingKeyException.Type.HMAC_KEY) },
 )
 
-fun DevelopmentKeysResponse.developmentKeys() = DevelopmentKeys(
-    apiKey = apiKey,
-    hmacKey = hmacKey,
-)
+class MissingKeyException(
+    val project: Project,
+    val type: Type
+) : Exception() {
+
+    enum class Type {
+        API_KEY,
+        HMAC_KEY;
+
+        override fun toString() = when (this) {
+            API_KEY -> "API key"
+            HMAC_KEY -> "HMAC key"
+        }
+    }
+}

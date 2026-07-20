@@ -7,6 +7,10 @@
 package no.nordicsemi.android.ei.service
 
 import no.nordicsemi.android.ei.model.User
+import no.nordicsemi.android.ei.service.param.AddApiKeyRequest
+import no.nordicsemi.android.ei.service.param.AddApiKeyResponse
+import no.nordicsemi.android.ei.service.param.AddHMACKeyRequest
+import no.nordicsemi.android.ei.service.param.AddHMACKeyResponse
 import no.nordicsemi.android.ei.service.param.BuildOnDeviceModelRequest
 import no.nordicsemi.android.ei.service.param.BuildOnDeviceModelResponse
 import no.nordicsemi.android.ei.service.param.CreateProjectRequest
@@ -94,6 +98,40 @@ interface EiService {
         @Header("x-jwt-token") jwt: String,
         @Path("projectId") projectId: Int
     ): DevelopmentKeysResponse
+
+    /**
+     * Add an API key.
+     *
+     * If you set [AddApiKeyRequest.isDevelopmentKey] to `true` this flag will be removed from the
+     * current development API key.
+     *
+     * @param jwt       Token received during the login.
+     * @param projectId Project ID.
+     */
+    @Headers("Accept: application/json", "Content-Type: application/json")
+    @POST("api/{projectId}/apikeys")
+    suspend fun addApiKey(
+        @Header("x-jwt-token") jwt: String,
+        @Path("projectId") projectId: Int,
+        @Body request: AddApiKeyRequest,
+    ): AddApiKeyResponse
+
+    /**
+     * Add an HMAC key.
+     *
+     * If you set [AddHMACKeyRequest.isDevelopmentKey] to `true` this flag will be removed from the
+     * current development HMAC key.
+     *
+     * @param jwt       Token received during the login.
+     * @param projectId Project ID.
+     */
+    @Headers("Accept: application/json", "Content-Type: application/json")
+    @POST("api/{projectId}/hmackeys")
+    suspend fun addHMACKey(
+        @Header("x-jwt-token") jwt: String,
+        @Path("projectId") projectId: Int,
+        @Body request: AddHMACKeyRequest,
+    ): AddHMACKeyResponse
 
     /**
      * Retrieve all the devices for a project. Devices get included

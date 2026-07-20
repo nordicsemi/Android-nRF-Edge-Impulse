@@ -28,6 +28,7 @@ import no.nordicsemi.android.ei.model.Project
 import no.nordicsemi.android.ei.model.User
 import no.nordicsemi.android.ei.repository.DashboardRepository
 import no.nordicsemi.android.ei.repository.UserDataRepository
+import no.nordicsemi.android.ei.service.param.MissingKeyException
 import no.nordicsemi.android.ei.service.param.ProjectVisibility
 import no.nordicsemi.android.ei.service.param.developmentKeys
 import no.nordicsemi.android.ei.util.guard
@@ -129,7 +130,8 @@ class DashboardViewModel @Inject constructor(
                 guard(response.success) {
                     throw Throwable(response.error)
                 }
-                response.developmentKeys()
+                // This can throw MissingKeyException, which will be caught by the UI.
+                response.developmentKeys(project = project)
             }
             // Retrieve the socket token for the project
             val socketToken = dashboardRepository
@@ -147,6 +149,33 @@ class DashboardViewModel @Inject constructor(
             )
             eventChannel.send(Event.Project.Selected(project))
             isDownloadingDevelopmentKeys = false
+        }
+    }
+
+    fun createKey(
+        project: Project,
+        type: MissingKeyException.Type,
+        name: String,
+    ) {
+        isDownloadingDevelopmentKeys = true
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            viewModelScope.launch {
+                eventChannel.send(Error(throwable))
+            }
+        }
+        viewModelScope.launch(handler) {
+            dashboardRepository
+                .createKey(
+                    token = userDataRepo!!.token,
+                    projectId = project.id,
+                    type = type,
+                    name = name,
+                ).let { response ->
+                    guard(response.success) {
+                        throw Throwable(response.error)
+                    }
+                    selectProject(project)
+                }
         }
     }
 

@@ -11,5 +11,5 @@ package no.nordicsemi.android.ei.model
  */
 data class DevelopmentKeys(
     val apiKey: String,
-    val hmacKey: String
+    val hmacKey: String,
 )
