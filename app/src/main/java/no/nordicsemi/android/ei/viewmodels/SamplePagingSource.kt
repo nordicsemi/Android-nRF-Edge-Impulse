@@ -30,11 +30,11 @@ class SamplePagingSource(
         val limit = params.loadSize
         return try {
             val response = repository.listSamples(
-                projectId = project.id,
                 keys = keys,
+                projectId = project.id,
                 category = category,
                 offset = offset,
-                limit = limit
+                limit = limit,
             )
             val nextKey = if (response.samples.size < limit || response.samples.isEmpty()) {
                 null

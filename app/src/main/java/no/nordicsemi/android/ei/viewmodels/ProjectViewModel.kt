@@ -486,8 +486,8 @@ class ProjectViewModel @Inject constructor(
         }
         deploymentJob = viewModelScope.launch(handler) {
             projectRepository.deploymentInfo(
+                keys = keys,
                 projectId = project.id,
-                keys = keys
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
@@ -517,8 +517,8 @@ class ProjectViewModel @Inject constructor(
      */
     private suspend fun build() {
         projectRepository.buildOnDeviceModels(
+            keys = keys,
             projectId = project.id,
-            keys = keys
         ).let { response ->
             guard(response.success) {
                 // Disconnect the websocket in case the build command fails
@@ -533,8 +533,8 @@ class ProjectViewModel @Inject constructor(
      */
     private suspend fun hasDeployment(): Boolean {
         projectRepository.deploymentInfo(
+            keys = keys,
             projectId = project.id,
-            keys = keys
         ).let { deploymentInfoResponse ->
             guard(deploymentInfoResponse.success) {
                 deploymentState = Failed(state = Downloading)
@@ -551,8 +551,8 @@ class ProjectViewModel @Inject constructor(
         deploymentState = Downloading
         if (hasDeployment()) {
             projectRepository.downloadBuild(
+                keys = keys,
                 projectId = project.id,
-                keys = keys
             ).let { downloadResponse ->
                 guard(downloadResponse.isSuccessful) {
                     deploymentState = Failed(Downloading)
@@ -647,10 +647,10 @@ class ProjectViewModel @Inject constructor(
             }
         }) {
             projectRepository.renameDevice(
-                apiKey = keys.apiKey,
+                keys = keys,
                 projectId = project.id,
                 deviceId = device.deviceId,
-                name = name
+                name = name,
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
@@ -673,9 +673,9 @@ class ProjectViewModel @Inject constructor(
             }
         }) {
             projectRepository.deleteDevice(
-                apiKey = keys.apiKey,
+                keys = keys,
                 projectId = project.id,
-                deviceId = device.deviceId
+                deviceId = device.deviceId,
             ).let { response ->
                 guard(response.success) {
                     throw Throwable(response.error)
