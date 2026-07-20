@@ -1,16 +1,15 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.service.param
 
 /**
  * Response for RenameDeviceRequest
- * @see https://docs.edgeimpulse.com/reference#renamedevice
+ *
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/devices/rename-device) for details.
  *
  * @param success   Whether the option succeeded.
  * @param error     Optional error description (set if 'success' was false).

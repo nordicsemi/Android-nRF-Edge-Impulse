@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.comms
@@ -399,15 +397,11 @@ class CommsManager(
                 override fun onResponse(call: Call, response: okhttp3.Response) {
                     samplingState = Finished(
                         sampleFinished = true,
-                        error = response.takeIf {
-                            !it.isSuccessful
-                        }?.let {
-                            "Error while uploading sample. ${
-                                it.body?.let { body ->
-                                    String(body.bytes())
-                                }
-                            }"
-                        } ?: run { "Data sample uploaded." }
+                        error = response
+                            .takeIf { !it.isSuccessful }
+                            ?.let {
+                                "Error while uploading sample. ${String(it.body.bytes())}"
+                            } ?: run { "Data sample uploaded." }
                     )
                     isSamplingRequestedFromDevice = false
                 }

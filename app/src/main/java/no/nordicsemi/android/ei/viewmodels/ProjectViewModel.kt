@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.viewmodels
@@ -26,20 +24,20 @@ import com.google.gson.Gson
 import dagger.hilt.EntryPoints
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.runtime.mcumgr.McuMgrTransport
-import io.runtime.mcumgr.ble.McuMgrBleTransport
-import io.runtime.mcumgr.dfu.FirmwareUpgradeCallback
-import io.runtime.mcumgr.dfu.FirmwareUpgradeController
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.CONFIRM
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.NONE
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.RESET
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.TEST
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.UPLOAD
-import io.runtime.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.VALIDATE
-import io.runtime.mcumgr.dfu.mcuboot.model.ImageSet
-import io.runtime.mcumgr.exception.McuMgrException
-import io.runtime.mcumgr.image.McuMgrImage
+import no.nordicsemi.android.mcumgr.McuMgrTransport
+import no.nordicsemi.android.mcumgr.ble.McuMgrBleTransport
+import no.nordicsemi.android.mcumgr.dfu.FirmwareUpgradeCallback
+import no.nordicsemi.android.mcumgr.dfu.FirmwareUpgradeController
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.CONFIRM
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.NONE
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.RESET
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.TEST
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.UPLOAD
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.FirmwareUpgradeManager.State.VALIDATE
+import no.nordicsemi.android.mcumgr.dfu.mcuboot.model.ImageSet
+import no.nordicsemi.android.mcumgr.exception.McuMgrException
+import no.nordicsemi.android.mcumgr.image.McuMgrImage
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -79,6 +77,7 @@ import no.nordicsemi.android.ei.viewmodels.state.DeviceState
 import no.nordicsemi.android.ei.viewmodels.state.InferencingState
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class ProjectViewModel @Inject constructor(
@@ -274,7 +273,7 @@ class ProjectViewModel @Inject constructor(
                     device.deviceId !in response.devices.map {
                         it.deviceId
                     }
-                }.onEach {
+                }.forEach {
                     commsManagers[it.deviceId]?.let { commsManager ->
                         disconnect(commsManager.device)
                     }
@@ -425,7 +424,7 @@ class ProjectViewModel @Inject constructor(
      * Disconnects all devices
      */
     fun disconnectAllDevices() {
-        commsManagers.onEach {
+        commsManagers.forEach {
             it.value.disconnect()
         }
         commsManagers.clear()
@@ -538,7 +537,7 @@ class ProjectViewModel @Inject constructor(
             keys = keys
         ).let { deploymentInfoResponse ->
             guard(deploymentInfoResponse.success) {
-                Failed(state = Downloading)
+                deploymentState = Failed(state = Downloading)
                 throw Throwable(deploymentInfoResponse.error)
             }
             return true
@@ -574,7 +573,7 @@ class ProjectViewModel @Inject constructor(
                 }
             }
         } else {
-            Failed(state = Downloading)
+            deploymentState = Failed(state = Downloading)
             throw Throwable("Firmware not available, for download")
         }
     }
@@ -726,7 +725,7 @@ class ProjectViewModel @Inject constructor(
             viewModelScope.launch {
                 var counter = 0
                 while (counter < 50) {
-                    delay(1000)
+                    delay(1.seconds)
                     if (deploymentState !is ApplyingUpdate) {
                         break
                     }

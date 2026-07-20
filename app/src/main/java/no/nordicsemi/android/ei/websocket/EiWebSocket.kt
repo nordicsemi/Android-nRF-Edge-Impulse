@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.websocket
@@ -113,7 +111,7 @@ class EiWebSocket @Inject constructor(
                 webSocket?.send("2")
             }
         }
-        Timer().scheduleAtFixedRate(pingTask, 20000, 20000)
+        Timer().schedule(pingTask, 20000, 20000)
     }
 
     /**

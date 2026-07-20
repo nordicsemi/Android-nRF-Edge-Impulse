@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.ui
@@ -198,7 +196,7 @@ private fun Login(
             label = { Text(stringResource(R.string.field_username)) },
             leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
             keyboardOptions = KeyboardOptions(
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 imeAction = ImeAction.Next,
             ),
             keyboardActions = KeyboardActions(onNext = {
@@ -231,7 +229,7 @@ private fun Login(
                 }
             },
             keyboardOptions = KeyboardOptions(
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 imeAction = ImeAction.Done,
             ),
             keyboardActions = KeyboardActions {
@@ -371,7 +369,7 @@ private fun SmallScreenLandscapeLogin(
                 label = { Text(stringResource(R.string.field_username)) },
                 leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(
-                    autoCorrect = false,
+                    autoCorrectEnabled = false,
                     imeAction = ImeAction.Next,
                 ),
                 keyboardActions = KeyboardActions(onNext = {
@@ -400,7 +398,7 @@ private fun SmallScreenLandscapeLogin(
                     }
                 },
                 keyboardOptions = KeyboardOptions(
-                    autoCorrect = false,
+                    autoCorrectEnabled = false,
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Password
                 ),
@@ -488,7 +486,7 @@ private fun MultiFactorAuthenticationDialog(
                     label = { Text(stringResource(R.string.field_code)) },
                     leadingIcon = { Icon(Icons.Outlined.Pin, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
-                        autoCorrect = false,
+                        autoCorrectEnabled = false,
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Number
                     ),

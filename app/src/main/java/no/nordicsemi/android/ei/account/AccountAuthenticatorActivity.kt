@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.account
@@ -15,6 +13,7 @@ import androidx.activity.ComponentActivity
 
 /**
  * This is [android.accounts.AccountAuthenticatorActivity] converted to [AppCompatActivity].
+ *
  * @see <a href="https://developer.android.com/reference/android/accounts/AccountAuthenticatorActivity">AccountAuthenticatorActivity</a>
  */
 open class AccountAuthenticatorActivity: ComponentActivity() {

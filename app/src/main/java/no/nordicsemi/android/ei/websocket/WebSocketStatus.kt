@@ -1,16 +1,15 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.websocket
 
 /**
  * WebSocketStatus
- * refer https://datatracker.ietf.org/doc/html/rfc6455#section-7.4
+ *
+ * Refer to [Documentation](https://datatracker.ietf.org/doc/html/rfc6455#section-7.4).
  */
 enum class WebSocketStatus(val code: Int) {
 

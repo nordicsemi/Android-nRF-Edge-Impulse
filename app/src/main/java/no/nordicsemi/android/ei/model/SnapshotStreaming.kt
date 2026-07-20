@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.model
@@ -11,7 +9,7 @@ package no.nordicsemi.android.ei.model
 /**
  * Snapshot streaming provides the user with a preview of a connected camera in the Studio.
  *
- * @see https://docs.edgeimpulse.com/reference#remote-management
+ * See [Documentation](https://docs.edgeimpulse.com/reference#remote-management) for details.
  */
 sealed class SnapshotStreaming {
     /**

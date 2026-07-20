@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.model
@@ -28,12 +26,12 @@ data class Sample(
     val added: String,
     val boundingBoxes: List<BoundingBox>
 ) {
-    inner class Sensor(
+    class Sensor(
         val name: String,
         val units: String
     )
 
-    inner class BoundingBox(
+    class BoundingBox(
         val label: String,
         val x: Int,
         val y: Int,

@@ -1,9 +1,7 @@
 /*
+ * Copyright (c) 2022, Nordic Semiconductor
  *
- *  * Copyright (c) 2022, Nordic Semiconductor
- *  *
- *  * SPDX-License-Identifier: Apache-2.0
- *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package no.nordicsemi.android.ei.util
@@ -67,15 +65,15 @@ class MessageTypeAdapter : JsonSerializer<Message>, JsonDeserializer<Message> {
             // Check if the element exists before checking if it's a primitive
             when {
                 root.has("hello") -> {
-                    root.get("hello")?.apply {
-                        takeIf { isJsonPrimitive }?.let {
+                    root.get("hello")?.let { element ->
+                        takeIf { element.isJsonPrimitive }?.let {
                             return context!!.deserialize(root, HelloResponse::class.java)
                         }
-                        return context!!.deserialize(this, Hello::class.java)
+                        return context!!.deserialize(element, Hello::class.java)
                     }
                 }
                 root.has("apiKey") -> {
-                    root.get("apiKey")?.apply {
+                    root.get("apiKey")?.let {
                         return context!!.deserialize(root, Configure::class.java)
                     }
                 }
