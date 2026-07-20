@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Start sampling response.
  *
- * See [Documentation](https://docs.edgeimpulse.com/reference#startsampling) for details.
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/devices/start-sampling#start-sampling) for details.
  *
  * @param success   Whether the option succeeded.
  * @param error     Optional error description (set if 'success' was false).

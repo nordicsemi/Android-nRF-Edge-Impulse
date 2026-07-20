@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Response for RenameDeviceRequest
  *
- * See [Documentation](https://docs.edgeimpulse.com/reference#renamedevice) for details.
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/devices/rename-device) for details.
  *
  * @param success   Whether the option succeeded.
  * @param error     Optional error description (set if 'success' was false).

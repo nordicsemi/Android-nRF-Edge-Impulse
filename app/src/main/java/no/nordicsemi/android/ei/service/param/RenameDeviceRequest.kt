@@ -9,7 +9,7 @@ package no.nordicsemi.android.ei.service.param
 /**
  * Set the current name for a device.
  *
- * See [Documentation](https://docs.edgeimpulse.com/reference#renamedevice) for details.
+ * See [Documentation](https://docs.edgeimpulse.com/apis/studio/devices/rename-device) for details.
  *
  * @param name  Device name
  */
