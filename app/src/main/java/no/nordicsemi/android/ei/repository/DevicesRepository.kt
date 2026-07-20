@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2026, Nordic Semiconductor
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package no.nordicsemi.android.ei.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
