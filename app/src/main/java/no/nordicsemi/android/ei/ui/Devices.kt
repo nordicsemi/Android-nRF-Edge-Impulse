@@ -21,15 +21,13 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -38,10 +36,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -124,15 +123,16 @@ fun Devices(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background),
-            contentPadding = PaddingValues(bottom = 160.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp)
         ) {
             item {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(vertical = 8.dp),
                     text = stringResource(R.string.label_devices),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
             configuredDevices.takeIf { devices ->
@@ -152,13 +152,10 @@ fun Devices(
                             showBottomSheet = !showBottomSheet
                         }
                     )
-                    HorizontalDivider()
                 }
             } ?: item {
                 NoConfiguredDevicesInfo(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -166,23 +163,24 @@ fun Devices(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         modifier = Modifier
                             .weight(1.0f),
                         text = stringResource(R.string.label_scanner),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.labelLarge
                     )
                     if (scanningState == ScanningState.Started) {
                         CircularProgressIndicator(
                             modifier = Modifier
                                 .size(24.dp)
-                                .align(Alignment.CenterVertically)
                         )
                     }
                 }
             }
+
             item {
                 when {
                     Utils.isSorAbove() -> BluetoothPermissionsRequired(
@@ -226,15 +224,12 @@ fun Devices(
                                 onDeviceClicked = { connect(it) },
                                 onDeviceAuthenticated = { onRefresh() }
                             )
-                            HorizontalDivider()
                         }
                     }
                 // Else, show a placeholder.
                     ?: this@LazyColumn.item {
                         NoDevicesInRangeInfo(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
             }
@@ -479,46 +474,45 @@ fun ConfiguredDeviceRow(
     state: DeviceState,
     onDeviceClicked: (Device) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
-            .clickable(
-                /*enabled = state == DeviceState.IN_RANGE || state == DeviceState.AUTHENTICATED,*/
-                onClick = { onDeviceClicked(device) },
-            )
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    OutlinedCard(
+        modifier = Modifier.clickable { onDeviceClicked(device) },
     ) {
-        Image(
-            imageVector = Icons.Rounded.DeveloperBoard,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    color = state.indicatorColor(),
-                    shape = CircleShape
+        ListItem(
+            modifier = Modifier.padding(vertical = 4.dp),
+            leadingContent = {
+                Image(
+                    imageVector = Icons.Rounded.DeveloperBoard,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            color = state.indicatorColor(),
+                            shape = CircleShape
+                        )
+                        .padding(8.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
                 )
-                .padding(8.dp),
-            colorFilter = ColorFilter.tint(Color.White)
+            },
+            headlineContent = {
+                Text(
+                    text = device.name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
+            supportingContent = {
+                Text(text = device.deviceType)
+            },
+            trailingContent = {
+                if (state == DeviceState.CONNECTING) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
         )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            modifier = Modifier.weight(1.0f),
-            text = device.name,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        if (state == DeviceState.CONNECTING) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.CenterVertically)
-            )
-        }
     }
 }
 
@@ -529,69 +523,61 @@ fun DiscoveredDeviceRow(
     onDeviceClicked: (DiscoveredBluetoothDevice) -> Unit,
     onDeviceAuthenticated: () -> Unit,
 ) {
-    Row(
+    OutlinedCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
             .clickable(
                 enabled = state == DeviceState.IN_RANGE,
-                onClick = { onDeviceClicked(device) },
-            )
-            .padding(16.dp),
+                onClick = { onDeviceClicked(device) }
+            ),
     ) {
-        Image(
-            imageVector = Icons.Rounded.DeveloperBoard,
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape
-                )
-                .padding(8.dp),
-            colorFilter = ColorFilter.tint(Color.White)
-        )
-        Spacer(modifier = Modifier.width(width = 16.dp))
-        Column(modifier = Modifier.weight(weight = 1.0f)) {
-            Text(
-                text = device.name ?: stringResource(id = R.string.unknown),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = device.bluetoothDevice.address,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-        Spacer(modifier = Modifier.width(width = 16.dp))
-        when (state) {
-            // RSSI image can be displayed even when not in range
-            DeviceState.IN_RANGE, DeviceState.NOT_IN_RANGE -> {
-                Icon(
-                    painter = painterResource(id = getRssiRes(device.rssiAsPercent())),
+        ListItem(
+            modifier = Modifier.padding(vertical = 4.dp),
+            leadingContent = {
+                Image(
+                    imageVector = Icons.Rounded.DeveloperBoard,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.CenterVertically),
-                    tint = MaterialTheme.colorScheme.onBackground
+                        .size(40.dp)
+                        .background(
+                            color = state.indicatorColor(),
+                            shape = CircleShape
+                        )
+                        .padding(8.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
                 )
-            }
+            },
+            headlineContent = {
+                Text(text = device.name ?: stringResource(id = R.string.unknown))
+            },
+            supportingContent = {
+                Text(text = device.bluetoothDevice.address)
+            },
+            trailingContent = {
+                when (state) {
+                    // RSSI image can be displayed even when not in range
+                    DeviceState.IN_RANGE, DeviceState.NOT_IN_RANGE -> {
+                        Icon(
+                            painter = painterResource(id = getRssiRes(device.rssiAsPercent())),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
 
-            DeviceState.CONNECTING,
-            DeviceState.AUTHENTICATING -> {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.CenterVertically)
-                )
-            }
+                    DeviceState.CONNECTING,
+                    DeviceState.AUTHENTICATING -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
 
-            DeviceState.AUTHENTICATED -> {
-                // Once the device is authenticated we should refresh the list of devices.
-                onDeviceAuthenticated()
+                    DeviceState.AUTHENTICATED -> {
+                        // Once the device is authenticated we should refresh the list of devices.
+                        onDeviceAuthenticated()
+                    }
+                }
             }
-        }
+        )
     }
 }
 

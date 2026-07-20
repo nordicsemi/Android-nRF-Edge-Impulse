@@ -29,21 +29,11 @@ class DeviceMessageTypeAdapter : JsonDeserializer<DeviceMessage> {
         val targetType: Type = when (root.get("type")?.asString) {
             "ws" -> WebSocketMessage::class.java
             "configure" -> ConfigureMessage::class.java
-            "http" -> {
-                DataSample::class.java
-            }
-            "start-inferencing" -> {
-                InferencingRequest::class.java
-            }
-            "start-inferencing-response" -> {
-                InferencingResponse.Start::class.java
-            }
-            "stop-inferencing-response" -> {
-                InferencingResponse.Stop::class.java
-            }
-            "inference-results" -> {
-                InferenceResults::class.java
-            }
+            "http" -> DataSample::class.java
+            "start-inferencing" -> InferencingRequest::class.java
+            "start-inferencing-response" -> InferencingResponse.Start::class.java
+            "stop-inferencing-response" -> InferencingResponse.Stop::class.java
+            "inference-results" -> InferenceResults::class.java
             else -> return InvalidMessage
         }
         return context!!.deserialize(json, targetType)

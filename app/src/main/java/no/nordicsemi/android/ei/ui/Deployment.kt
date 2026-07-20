@@ -264,7 +264,7 @@ private fun DeployImpulse(
                 )
             ) {
                 Text(
-                    modifier = Modifier.defaultMinSize(minWidth = 80.dp),
+                    modifier = Modifier.defaultMinSize(minWidth = 145.dp),
                     text = stringResource(
                         when (deploymentState) {
                             NotStarted, is Canceled, is Failed, is Complete -> R.string.action_deploy
