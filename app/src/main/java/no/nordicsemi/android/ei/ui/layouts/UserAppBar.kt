@@ -10,12 +10,18 @@ package no.nordicsemi.android.ei.ui.layouts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,7 +43,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.model.User
-import no.nordicsemi.android.ei.ui.ShowDropdown
 import no.nordicsemi.android.common.ui.R as uiR
 
 private val AppBarHeight = 56.dp
@@ -72,10 +77,11 @@ fun UserAppBar(
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-                ShowDropdown(
+                DropdownMenu(
                     modifier = Modifier.wrapContentWidth(),
                     expanded = showMenu,
-                    onDismiss = { showMenu = !showMenu }) {
+                    onDismissRequest = { showMenu = !showMenu }
+                ) {
                     DropdownMenuItem(
                         text = {
                             Text(text = stringResource(id = R.string.action_about))
@@ -115,6 +121,7 @@ fun UserAppBar(
                         containerColor = backgroundColor
                     ).containerColor
                 )
+                .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
                 .padding(start = UserAppBarImageSize + 32.dp)
         ) {
             Text(

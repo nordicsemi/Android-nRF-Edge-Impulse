@@ -8,6 +8,7 @@ package no.nordicsemi.android.ei.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -38,8 +39,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -58,7 +59,10 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import no.nordicsemi.android.common.theme.NordicTheme
+import no.nordicsemi.android.common.ui.view.SectionTitle
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.comms.DeploymentState
 import no.nordicsemi.android.ei.comms.DeploymentState.ApplyingUpdate
@@ -75,10 +79,13 @@ import no.nordicsemi.android.ei.model.Device
 import no.nordicsemi.android.ei.model.Project
 import no.nordicsemi.android.ei.ui.layouts.DeviceDisconnected
 import no.nordicsemi.android.ei.ui.theme.NordicBlue
+import no.nordicsemi.android.ei.ui.theme.icons.Deployment
+import no.nordicsemi.android.ei.ui.theme.icons.Nordic
+import no.nordicsemi.android.ei.ui.theme.icons.VitalSigns
+import no.nordicsemi.android.ei.ui.view.DevicesDropdownMenu
 
 @Composable
 fun Deployment(
-    modifier: Modifier,
     project: Project,
     connectedDevices: List<Device>,
     deploymentTarget: Device?,
@@ -87,7 +94,13 @@ fun Deployment(
     onDeployClick: (Device?) -> Unit,
     onCancelDeployClick: () -> Unit
 ) {
-    Column(modifier = modifier.verticalScroll(state = rememberScrollState())) {
+    Column(
+        modifier = Modifier
+            .verticalScroll(state = rememberScrollState())
+            .padding(all = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         DesignImpulse(project = project)
         DeployImpulse(
             connectedDevices = connectedDevices,
@@ -101,60 +114,45 @@ fun Deployment(
 }
 
 @Composable
-private fun DesignImpulse(
+private fun ColumnScope.DesignImpulse(
     project: Project
 ) {
     val localUriHandler = LocalUriHandler.current
-    val uri by remember { mutableStateOf("https://studio.edgeimpulse.com/studio/${project.id}/create-impulse") }
-    Column {
-        Text(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-            text = stringResource(R.string.title_design_impulse),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Surface(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .padding(all = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.title_create_impulse),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(modifier = Modifier.size(size = 16.dp))
-                Text(
-                    text = stringResource(R.string.label_create_impulse_rationale)
-                )
+    val uri = remember { "https://studio.edgeimpulse.com/studio/${project.id}/create-impulse" }
 
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+    OutlinedCard {
+        Column(
+            modifier = Modifier.padding(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Button(
-                onClick = {
-                    localUriHandler.openUri(uri = uri)
-                }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = stringResource(id = R.string.action_ei_studio))
-                    Icon(
-                        modifier = Modifier.padding(start = 8.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.Launch,
-                        contentDescription = null
-                    )
-                }
-            }
+            SectionTitle(
+                icon = Nordic.Icons.VitalSigns,
+                title = stringResource(id = R.string.title_design_impulse)
+            )
+            Text(
+                text = stringResource(R.string.label_create_impulse_rationale),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
-
+    }
+    Button(
+        modifier = Modifier.defaultMinSize(minWidth = 145.dp),
+        onClick = { localUriHandler.openUri(uri = uri) },
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = stringResource(id = R.string.action_ei_studio))
+            Icon(
+                modifier = Modifier.padding(start = 8.dp),
+                imageVector = Icons.AutoMirrored.Rounded.Launch,
+                contentDescription = null
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DeployImpulse(
+private fun ColumnScope.DeployImpulse(
     connectedDevices: List<Device>,
     deploymentTarget: Device?,
     onDeploymentTargetSelected: (Device) -> Unit,
@@ -173,109 +171,98 @@ private fun DeployImpulse(
             onDeploymentTargetSelected(connectedDevices[0])
         }
     }
-    Column(modifier = Modifier.padding(bottom = 100.dp)) {
-        Surface {
-            Column(
-                modifier = Modifier.padding(all = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.title_deploy_impulse),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                ExposedDropdownMenuBox(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    expanded = isDevicesMenuExpanded,
-                    onExpandedChange = { isDevicesMenuExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
-                        value = deploymentTarget?.name ?: stringResource(id = R.string.empty),
-                        enabled = isEnabled,
-                        onValueChange = { },
-                        readOnly = true,
-                        label = {
-                            DeviceDisconnected(connectedDevices = connectedDevices)
-                        },
-                        leadingIcon = {
-                            Icon(
-                                modifier = Modifier
-                                    .size(24.dp),
-                                imageVector = Icons.Rounded.DeveloperBoard,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        },
-                        trailingIcon = {
-                            Icon(
-                                modifier = Modifier.rotate(if (isDevicesMenuExpanded) 180f else 0f),
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = null
-                            )
-                        },
-                        singleLine = true
-                    )
-                    ShowDevicesDropdown(
-                        modifier = Modifier.exposedDropdownSize(),
-                        expanded = isDevicesMenuExpanded,
-                        connectedDevices = connectedDevices,
-                        onDeviceSelected = {
-                            isDevicesMenuExpanded = false
-                            onDeploymentTargetSelected(it)
-                        },
-                        onDismiss = {
-                            isDevicesMenuExpanded = false
-                        }
-                    )
-                }
-                BuildRow(state = deploymentState)
-                DownloadRow(state = deploymentState)
-                VerifyRow(state = deploymentState)
-                UploadRow(state = deploymentState)
-                ConfirmRow(state = deploymentState)
-                ApplyingUpdateRow(state = deploymentState)
-                CompletedRow(state = deploymentState)
-            }
-        }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+    OutlinedCard {
+        Column(
+            modifier = Modifier.padding(all = 16.dp),
         ) {
-            Button(
-                enabled = connectedDevices.isNotEmpty(),
-                onClick = {
-                    when (deploymentState) {
-                        NotStarted, is Canceled, is Failed, is Complete -> onDeployClick(
-                            deploymentTarget
-                        )
-
-                        else -> onCancelDeployClick()
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    when (deploymentState) {
-                        NotStarted, is Canceled, is Failed, is Complete -> MaterialTheme.colorScheme.primary
-                        else -> Color.Red
-                    }
-                )
+            SectionTitle(
+                icon = Nordic.Icons.Deployment,
+                title = stringResource(id = R.string.title_deploy_impulse)
+            )
+            ExposedDropdownMenuBox(
+                expanded = isDevicesMenuExpanded,
+                onExpandedChange = { isDevicesMenuExpanded = it }
             ) {
-                Text(
-                    modifier = Modifier.defaultMinSize(minWidth = 145.dp),
-                    text = stringResource(
-                        when (deploymentState) {
-                            NotStarted, is Canceled, is Failed, is Complete -> R.string.action_deploy
-                            else -> R.string.action_cancel
-                        }
-                    ),
-                    textAlign = TextAlign.Center,
-                    color = Color.White
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
+                    value = deploymentTarget?.name ?: stringResource(id = R.string.empty),
+                    enabled = isEnabled,
+                    onValueChange = { },
+                    readOnly = true,
+                    label = {
+                        DeviceDisconnected(connectedDevices = connectedDevices)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            modifier = Modifier
+                                .size(24.dp),
+                            imageVector = Icons.Rounded.DeveloperBoard,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            modifier = Modifier.rotate(if (isDevicesMenuExpanded) 180f else 0f),
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null
+                        )
+                    },
+                    singleLine = true
+                )
+                DevicesDropdownMenu(
+                    modifier = Modifier.exposedDropdownSize(),
+                    expanded = isDevicesMenuExpanded,
+                    connectedDevices = connectedDevices,
+                    onDeviceSelected = {
+                        isDevicesMenuExpanded = false
+                        onDeploymentTargetSelected(it)
+                    },
+                    onDismiss = {
+                        isDevicesMenuExpanded = false
+                    }
                 )
             }
+            BuildRow(state = deploymentState)
+            DownloadRow(state = deploymentState)
+            VerifyRow(state = deploymentState)
+            UploadRow(state = deploymentState)
+            ConfirmRow(state = deploymentState)
+            ApplyingUpdateRow(state = deploymentState)
+            CompletedRow(state = deploymentState)
         }
+    }
+
+    Button(
+        modifier = Modifier.defaultMinSize(minWidth = 145.dp),
+        enabled = connectedDevices.isNotEmpty(),
+        onClick = {
+            when (deploymentState) {
+                NotStarted, is Canceled, is Failed, is Complete -> onDeployClick(deploymentTarget)
+                else -> onCancelDeployClick()
+            }
+        },
+        colors = ButtonDefaults.buttonColors(
+            when (deploymentState) {
+                NotStarted, is Canceled, is Failed, is Complete -> MaterialTheme.colorScheme.primary
+                else -> Color.Red
+            }
+        )
+    ) {
+        Text(
+            modifier = Modifier.defaultMinSize(minWidth = 145.dp),
+            text = stringResource(
+                when (deploymentState) {
+                    NotStarted, is Canceled, is Failed, is Complete -> R.string.action_deploy
+                    else -> R.string.action_cancel
+                }
+            ),
+            textAlign = TextAlign.Center,
+            color = Color.White
+        )
     }
 }
 
@@ -290,10 +277,9 @@ private fun StateRow(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-
+            .height(42.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
@@ -342,9 +328,9 @@ fun BuildRow(
             )
             LinearProgressIndicator(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .height(height = 2.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         }
 
@@ -386,9 +372,9 @@ fun DownloadRow(
         ) {
             LinearProgressIndicator(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .height(height = 2.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         }
 
@@ -430,9 +416,9 @@ fun VerifyRow(
         ) {
             LinearProgressIndicator(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .height(height = 2.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         }
 
@@ -478,9 +464,9 @@ fun UploadRow(
             ) {
                 LinearProgressIndicator(
                     modifier = Modifier
-                        .padding(top = 4.dp)
-                        .height(height = 2.dp)
                         .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                     progress = { state.percent / 100f }
                 )
             }
@@ -525,9 +511,9 @@ fun ConfirmRow(
         ) {
             LinearProgressIndicator(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .height(height = 2.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
         }
 
@@ -569,12 +555,10 @@ fun ApplyingUpdateRow(
         ) {
             LinearProgressIndicator(
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .height(height = 2.dp)
                     .fillMaxWidth(),
-                progress = {
-                    state.percent / 100f
-                }
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                progress = { state.percent / 100f }
             )
         }
 
@@ -648,3 +632,28 @@ private fun shouldEnable(
     connectedDevices.isNotEmpty() &&
             (deploymentState is NotStarted || deploymentState is Canceled ||
                     deploymentState is Failed || deploymentState is Complete)
+
+@Preview
+@Composable
+private fun DeploymentPreview() {
+    NordicTheme {
+        Column {
+            DeployImpulse(
+                connectedDevices = emptyList(),
+                deploymentTarget = null,
+                onDeploymentTargetSelected = { },
+                deploymentState = NotStarted,
+                onDeployClick = { },
+                onCancelDeployClick = { }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun BuildPreview() {
+    NordicTheme {
+        BuildRow(state = Building)
+    }
+}

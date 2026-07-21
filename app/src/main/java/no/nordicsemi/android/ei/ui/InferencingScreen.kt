@@ -13,62 +13,55 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import no.nordicsemi.android.common.ui.view.SectionTitle
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.model.Device
 import no.nordicsemi.android.ei.model.InferencingMessage.InferenceResults
 import no.nordicsemi.android.ei.model.InferencingMessage.InferencingRequest
 import no.nordicsemi.android.ei.ui.layouts.DeviceDisconnected
+import no.nordicsemi.android.ei.ui.view.DevicesDropdownMenu
 import no.nordicsemi.android.ei.util.round
 import no.nordicsemi.android.ei.viewmodels.state.InferencingState
 
 @Composable
 fun InferencingScreen(
-    modifier: Modifier,
     connectedDevices: List<Device>,
     inferenceResults: List<InferenceResults>,
     inferencingTarget: Device?,
@@ -76,20 +69,20 @@ fun InferencingScreen(
     inferencingState: InferencingState,
     sendInferencingRequest: (InferencingRequest) -> Unit
 ) {
-
     val isLargeScreen =
         LocalConfiguration.current.screenLayout and
                 Configuration.SCREENLAYOUT_SIZE_MASK >= Configuration.SCREENLAYOUT_SIZE_LARGE
     val isLandscape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val scrollState = rememberScrollState()
+
     Column(
-        modifier = modifier
-            .background(color = MaterialTheme.colorScheme.background)
-            .padding(bottom = 100.dp),
+        modifier = Modifier
+            .verticalScroll(scrollState)
+            .padding(vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         StartInferencing(
-            isLargeScreen = isLargeScreen,
-            isLandscape = isLandscape,
             connectedDevices = connectedDevices,
             inferencingTarget = inferencingTarget,
             onInferencingTargetSelected = onInferencingTargetSelected,
@@ -112,8 +105,6 @@ fun InferencingScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StartInferencing(
-    isLargeScreen: Boolean,
-    isLandscape: Boolean,
     connectedDevices: List<Device>,
     inferencingTarget: Device?,
     onInferencingTargetSelected: (Device) -> Unit,
@@ -122,182 +113,101 @@ private fun StartInferencing(
 ) {
     var isDevicesMenuExpanded by remember { mutableStateOf(false) }
 
-    if (isLargeScreen || isLandscape) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                modifier = Modifier
-                    .wrapContentWidth(),
-                text = stringResource(R.string.title_inferencing),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            ExposedDropdownMenuBox(
-                expanded = isDevicesMenuExpanded,
-                onExpandedChange = { isDevicesMenuExpanded = it }
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        OutlinedCard {
+            Column(
+                modifier = Modifier.padding(all = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .weight(0.5f)
-                        .menuAnchor(
-                            type = MenuAnchorType.PrimaryNotEditable,
-                            enabled = connectedDevices.isNotEmpty()
-                        ),
-                    value = inferencingTarget?.name ?: stringResource(id = R.string.empty),
-                    enabled = connectedDevices.isNotEmpty(),
-                    onValueChange = { },
-                    readOnly = true,
-                    label = { DeviceDisconnected(connectedDevices = connectedDevices) },
-                    leadingIcon = {
-                        Icon(
-                            modifier = Modifier
-                                .size(24.dp),
-                            imageVector = Icons.Rounded.DeveloperBoard,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            modifier = Modifier.rotate(if (isDevicesMenuExpanded) 180f else 0f),
-                            imageVector = Icons.Default.ArrowDropDown,
-                            contentDescription = null
-                        )
-                    },
-                    singleLine = true
+                SectionTitle(
+                    icon = Icons.Default.Psychology,
+                    title = stringResource(R.string.inferencing_section_title),
                 )
-                ShowDevicesDropdown(
-                    modifier = Modifier.exposedDropdownSize(),
+                Text(
+                    text = stringResource(R.string.inferencing_info),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                ExposedDropdownMenuBox(
                     expanded = isDevicesMenuExpanded,
-                    connectedDevices = connectedDevices,
-                    onDeviceSelected = { device ->
-                        isDevicesMenuExpanded = false
-                        onInferencingTargetSelected(device)
-                    },
-                    onDismiss = {
-                        isDevicesMenuExpanded = false
+                    onExpandedChange = { isDevicesMenuExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(
+                                type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                enabled = connectedDevices.isNotEmpty()
+                            ),
+                        value = inferencingTarget?.name ?: stringResource(id = R.string.empty),
+                        enabled = connectedDevices.isNotEmpty(),
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { DeviceDisconnected(connectedDevices = connectedDevices) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier
+                                    .size(24.dp),
+                                imageVector = Icons.Rounded.DeveloperBoard,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        trailingIcon = {
+                            Icon(
+                                modifier = Modifier.rotate(if (isDevicesMenuExpanded) 180f else 0f),
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null
+                            )
+                        },
+                        singleLine = true
+                    )
+                    DevicesDropdownMenu(
+                        modifier = Modifier.exposedDropdownSize(),
+                        expanded = isDevicesMenuExpanded,
+                        connectedDevices = connectedDevices,
+                        onDeviceSelected = { device ->
+                            isDevicesMenuExpanded = false
+                            onInferencingTargetSelected(device)
+                        },
+                        onDismiss = {
+                            isDevicesMenuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        Button(
+            modifier = Modifier.width(width = 100.dp),
+            enabled = connectedDevices.isNotEmpty(),
+            onClick = {
+                sendInferencingRequest(
+                    when (inferencingState) {
+                        InferencingState.Started -> InferencingRequest.Stop()
+                        InferencingState.Stopped -> InferencingRequest.Start()
                     }
                 )
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-            Button(
-                modifier = Modifier.defaultMinSize(minWidth = 100.dp),
-                enabled = connectedDevices.isNotEmpty(),
-                onClick = {
-                    sendInferencingRequest(
-                        when (inferencingState) {
-                            InferencingState.Started -> InferencingRequest.Stop()
-                            InferencingState.Stopped -> InferencingRequest.Start()
-                        }
-                    )
-                }) {
-                Text(
-                    text = stringResource(
-                        id = when (inferencingState) {
-                            InferencingState.Started -> R.string.action_stop
-                            InferencingState.Stopped -> R.string.action_start
-                        }
-                    )
-                )
-            }
-        }
-    } else {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 16.dp),
-            text = stringResource(R.string.title_inferencing),
-            style = MaterialTheme.typography.titleLarge
-        )
-        ExposedDropdownMenuBox(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            expanded = isDevicesMenuExpanded,
-            onExpandedChange = { isDevicesMenuExpanded = it }
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(
-                        type = MenuAnchorType.PrimaryNotEditable,
-                        enabled = connectedDevices.isNotEmpty()
-                    ),
-                value = inferencingTarget?.name ?: stringResource(id = R.string.empty),
-                enabled = connectedDevices.isNotEmpty(),
-                onValueChange = { },
-                readOnly = true,
-                label = { DeviceDisconnected(connectedDevices = connectedDevices) },
-                leadingIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .size(24.dp),
-                        imageVector = Icons.Rounded.DeveloperBoard,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        modifier = Modifier.rotate(if (isDevicesMenuExpanded) 180f else 0f),
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                },
-                singleLine = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                if (inferencingState is InferencingState.Started) Color.Red
+                else MaterialTheme.colorScheme.primary
             )
-            ShowDevicesDropdown(
-                modifier = Modifier.exposedDropdownSize(),
-                expanded = isDevicesMenuExpanded,
-                connectedDevices = connectedDevices,
-                onDeviceSelected = { device ->
-                    isDevicesMenuExpanded = false
-                    onInferencingTargetSelected(device)
-                },
-                onDismiss = {
-                    isDevicesMenuExpanded = false
-                }
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                modifier = Modifier
-                    .width(width = 100.dp)
-                    .padding(vertical = 16.dp),
-                enabled = connectedDevices.isNotEmpty(),
-                onClick = {
-                    sendInferencingRequest(
-                        when (inferencingState) {
-                            InferencingState.Started -> InferencingRequest.Stop()
-                            InferencingState.Stopped -> InferencingRequest.Start()
-                        }
-                    )
-                },
-                colors = ButtonDefaults.buttonColors(
-                    if (inferencingState is InferencingState.Started) Color.Red
-                    else MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = stringResource(
-                        id = when (inferencingState) {
-                            InferencingState.Started -> R.string.action_stop
-                            InferencingState.Stopped -> R.string.action_start
-                        }
-                    ),
-                    color = Color.White
-                )
-            }
+            Text(
+                text = stringResource(
+                    id = when (inferencingState) {
+                        InferencingState.Started -> R.string.action_stop
+                        InferencingState.Stopped -> R.string.action_start
+                    }
+                ),
+                color = Color.White
+            )
         }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -307,59 +217,46 @@ private fun InferencingTable(
     isLandscape: Boolean,
     inferenceResults: List<InferenceResults>
 ) {
-    val listState = rememberLazyListState()
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    val scrollState = rememberScrollState()
-    LaunchedEffect(key1 = inferenceResults.size) {
-        if (inferenceResults.isNotEmpty()) {
-            listState.scrollToItem(inferenceResults.size - 1)
-        }
-    }
     inferenceResults.takeIf { it.isNotEmpty() }?.let { results ->
+        val screenSize = LocalWindowInfo.current.containerSize
         val cellCount = results.first().classification.size + 1
-        val cellWidth = calculateWith(cellCount, screenWidth, isLargeScreen, isLandscape)
-        LazyColumn(
+        val cellWidth = calculateWith(cellCount, screenSize.width, isLargeScreen, isLandscape)
+
+        OutlinedCard(
             modifier = Modifier
-                .fillMaxSize()
-                .horizontalScroll(state = scrollState),
-            state = listState
+                .horizontalScroll(state = rememberScrollState())
+                .padding(horizontal = 16.dp)
         ) {
-            stickyHeader {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = MaterialTheme.colorScheme.background)
-                ) {
-                    results.firstOrNull()?.let { result ->
-                        result.classification.forEach {
-                            Text(
-                                text = it.label,
-                                modifier = Modifier
-                                    .width(width = cellWidth)
-                                    .padding(all = 16.dp),
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
+            Row(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(vertical = 8.dp)
+            ) {
+                results.firstOrNull()?.let { result ->
+                    result.classification.forEach {
                         Text(
-                            text = stringResource(R.string.label_anomaly),
-                            modifier = Modifier
-                                .width(width = cellWidth)
-                                .padding(all = 16.dp),
-                            fontWeight = FontWeight.Bold,
+                            text = it.label,
+                            modifier = Modifier.width(width = cellWidth),
+                            style = MaterialTheme.typography.labelLarge,
                             textAlign = TextAlign.Center,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
+                    Text(
+                        text = stringResource(R.string.label_anomaly),
+                        modifier = Modifier.width(width = cellWidth),
+                        style = MaterialTheme.typography.labelLarge,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-                HorizontalDivider()
             }
-            items(items = results) { results ->
-                InferencingResult(inferenceResults = results, cellWidth = cellWidth)
-                HorizontalDivider()
+            HorizontalDivider()
+
+            results.forEach {  result ->
+                InferencingResult(inferenceResults = result, cellWidth = cellWidth)
             }
         }
     }
@@ -368,17 +265,13 @@ private fun InferencingTable(
 @Composable
 private fun InferencingResult(inferenceResults: InferenceResults, cellWidth: Dp) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+        modifier = Modifier.padding(vertical = 4.dp),
     ) {
         inferenceResults.classification.forEach { classification ->
             Text(
                 text = classification.value.round().toString(),
-                modifier = Modifier
-                    .width(cellWidth)
-                    .padding(16.dp),
-                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.width(cellWidth),
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -390,20 +283,16 @@ private fun InferencingResult(inferenceResults: InferenceResults, cellWidth: Dp)
             when(anomaly){
                 null -> Text(
                     text = "N/A",
-                    modifier = Modifier
-                        .width(cellWidth)
-                        .padding(16.dp),
-                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.width(cellWidth),
+                    style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 else -> Text(
                     text = anomaly.round().toString(),
-                    modifier = Modifier
-                        .width(cellWidth)
-                        .padding(16.dp),
-                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.width(cellWidth),
+                    style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -437,5 +326,5 @@ private fun calculateWith(
     }
 }
 
-private val MIN_CELL_WIDTH = 98.dp
-private val MAX_CELL_WIDTH = 140.dp
+private val MIN_CELL_WIDTH = 80.dp
+private val MAX_CELL_WIDTH = 100.dp

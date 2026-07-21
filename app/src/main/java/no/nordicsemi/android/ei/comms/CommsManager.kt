@@ -87,8 +87,8 @@ class CommsManager(
     var inferencingState by mutableStateOf<InferencingState>(InferencingState.Stopped)
         private set
 
-    var inferenceResults = mutableStateListOf<InferencingMessage.InferenceResults>()
-        private set
+    private var _inferenceResults = mutableStateListOf<InferencingMessage.InferenceResults>()
+    var inferenceResults: List<InferencingMessage.InferenceResults> = _inferenceResults.asReversed()
 
     /** The emitter is used to publish data to a flow, when a collector is registered. */
     private var emitter: ((DeviceState) -> Unit)? = null
@@ -285,7 +285,7 @@ class CommsManager(
                         dataSample = deviceMessage
                     )
                     is InferencingResponse.Start -> {
-                        inferenceResults.clear()
+                        _inferenceResults.clear()
                         inferencingState = InferencingState.Started
                     }
                     is InferencingResponse.Stop -> {
@@ -293,10 +293,9 @@ class CommsManager(
                     }
                     is InferencingMessage.InferenceResults -> {
                         inferencingState = InferencingState.Started
-                        inferenceResults.add(deviceMessage)
+                        _inferenceResults.add(deviceMessage)
                     }
-                    else -> {
-                    }
+                    else -> {}
                 }
             }
     }
@@ -390,18 +389,17 @@ class CommsManager(
         client.newCall(request = request)
             .enqueue(responseCallback = object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    samplingState = Finished(false, e.message)
+                    samplingState = Finished(e.message)
                     isSamplingRequestedFromDevice = false
                 }
 
                 override fun onResponse(call: Call, response: okhttp3.Response) {
                     samplingState = Finished(
-                        sampleFinished = true,
                         error = response
                             .takeIf { !it.isSuccessful }
                             ?.let {
                                 "Error while uploading sample. ${String(it.body.bytes())}"
-                            } ?: run { "Data sample uploaded." }
+                            }
                     )
                     isSamplingRequestedFromDevice = false
                 }

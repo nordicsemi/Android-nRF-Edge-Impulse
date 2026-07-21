@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +36,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -217,7 +220,7 @@ fun Dashboard(
                                     .padding(horizontal = 16.dp, vertical = 16.dp),
                                 text = stringResource(id = R.string.title_projects),
                                 color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleLarge
+                                style = MaterialTheme.typography.labelLarge
                             )
                         }
                         items(
@@ -276,7 +279,7 @@ fun Dashboard(
                 type = key.type,
                 onCreateKey = {
                     missingKey = null
-                    
+
                     viewModel.createKey(
                         project = key.project,
                         type = key.type,
@@ -296,27 +299,28 @@ fun Dashboard(
             ShowDownloadingDevelopmentKeysDialog()
         }
     }
+    val innerPadding = WindowInsets.displayCutout.union(WindowInsets.statusBars)
     Surface(
-        modifier = with(Modifier) {
-            offset(y = (56.dp))
-                .padding(
-                    start = 16.dp,
-                    top = when {
-                        isLargeScreen -> 32.dp
-                        else -> 56.dp
-                    }
-                )
-                .border(
-                    border = BorderStroke(3.dp, color = MaterialTheme.colorScheme.onPrimary),
-                    shape = CircleShape
-                )
-                .height(UserAppBarImageSize)
-                .aspectRatio(1.0f)
-                .shadow(
-                    elevation = 4.dp,
-                    shape = CircleShape
-                )
-        },
+        modifier = Modifier
+            .windowInsetsPadding(innerPadding)
+            .offset(y = 16.dp)
+            .padding(
+                start = 16.dp,
+                top = when {
+                    isLargeScreen -> 32.dp
+                    else -> 56.dp
+                }
+            )
+            .border(
+                border = BorderStroke(3.dp, color = MaterialTheme.colorScheme.onPrimary),
+                shape = CircleShape
+            )
+            .height(UserAppBarImageSize)
+            .aspectRatio(1.0f)
+            .shadow(
+                elevation = 4.dp,
+                shape = CircleShape
+            ),
         shape = CircleShape,
     ) {
         Image(
@@ -324,21 +328,23 @@ fun Dashboard(
                 ImageRequest.Builder(LocalContext.current).data(data = user.photo?.let { photo ->
                     when {
                         photo.isNotBlank() -> photo
-                        else -> Image(
-                            modifier = Modifier.border(
-                                border = BorderStroke(
-                                    10.dp,
-                                    color = MaterialTheme.colorScheme.surface.copy(0.6f)
-                                )
-                            ),
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(
-                                MaterialTheme.colorScheme.onSurface.copy(
-                                    0.6f
+                        else -> {
+                            Image(
+                                modifier = Modifier.border(
+                                    border = BorderStroke(
+                                        10.dp,
+                                        color = MaterialTheme.colorScheme.surface.copy(0.6f)
+                                    )
+                                ),
+                                imageVector = Icons.Filled.AccountCircle,
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(
+                                    MaterialTheme.colorScheme.onSurface.copy(
+                                        0.6f
+                                    )
                                 )
                             )
-                        )
+                        }
                     }
                 } ?: Image(
                     modifier = Modifier.border(

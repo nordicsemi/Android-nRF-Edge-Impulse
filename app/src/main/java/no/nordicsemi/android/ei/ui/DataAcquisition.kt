@@ -9,8 +9,8 @@ package no.nordicsemi.android.ei.ui
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,56 +33,104 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import no.nordicsemi.android.ei.HorizontalPagerTab
 import no.nordicsemi.android.ei.R
 import no.nordicsemi.android.ei.model.Message
 import no.nordicsemi.android.ei.model.Sample
 import no.nordicsemi.android.ei.ui.layouts.InfoLayout
 import no.nordicsemi.android.ei.util.asMessage
+import no.nordicsemi.android.common.ui.R as uiR
 
 @Composable
 fun DataAcquisition(
-    modifier: Modifier = Modifier,
     pagerState: PagerState,
     listStates: List<LazyListState>,
     samples: List<Flow<PagingData<Sample>>>,
     samplingState: Message.Sample
 ) {
-    HorizontalPager(
-        modifier = modifier,
-        state = pagerState
-    ) { page ->
-        CollectedDataList(
-            state = listStates[page],
-            samplingState = samplingState,
-            pagingDataFlow = samples[page],
-            tab = HorizontalPagerTab.indexed(page)
-        )
+    val tabs = listOf(HorizontalPagerTab.TRAINING, HorizontalPagerTab.TESTING)
+    val coroutineScope = rememberCoroutineScope()
+
+    Column {
+        PrimaryTabRow(
+            selectedTabIndex = pagerState.currentPage,
+            containerColor = colorResource(id = uiR.color.appBarColor),
+            indicator = {
+                TabRowDefaults.PrimaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(
+                        selectedTabIndex = pagerState.currentPage,
+                        matchContentSize = false,
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    width = Dp.Unspecified,
+                )
+            }
+        ) {
+            tabs.forEachIndexed { index, tab ->
+                Tab(
+                    text = { Text(text = stringResource(id = tab.title)) },
+                    icon = {
+                        Icon(
+                            painter = rememberVectorPainter(tab.icon),
+                            contentDescription = null
+                        )
+                    },
+                    selected = pagerState.currentPage == index,
+                    selectedContentColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f),
+                    onClick = {
+                        coroutineScope.launch {
+                            pagerState.scrollToPage(index)
+                        }
+                    },
+                )
+            }
+        }
+        HorizontalPager(
+            state = pagerState,
+            verticalAlignment = Alignment.Top,
+        ) { page ->
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                CollectedDataList(
+                    state = listStates[page],
+                    samplingState = samplingState,
+                    pagingDataFlow = samples[page],
+                    tab = HorizontalPagerTab.indexed(page)
+                )
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CollectedDataList(
-    modifier: Modifier = Modifier,
     state: LazyListState,
     samplingState: Message.Sample,
     pagingDataFlow: Flow<PagingData<Sample>>,
@@ -90,95 +138,92 @@ private fun CollectedDataList(
 ) {
     val samples: LazyPagingItems<Sample> = pagingDataFlow.collectAsLazyPagingItems()
     // Refresh the samples when after a successful sampling
-    val shouldRefresh by remember {
-        derivedStateOf {
-            samplingState is Message.Sample.Finished &&
-                    samplingState.sampleFinished && samplingState.error != null
+    LaunchedEffect(samplingState) {
+        if (samplingState is Message.Sample.Finished && samplingState.error == null) {
+            samples.refresh()
         }
-    }
-    if (shouldRefresh) {
-        samples.refresh()
     }
 
     samples.let { lazyPagingItems ->
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize(),
-            state = state,
-            contentPadding = PaddingValues(bottom = 160.dp)
+        OutlinedCard(
+            modifier = Modifier.padding(all = 16.dp)
         ) {
-            if (lazyPagingItems.itemCount > 0) {
-                stickyHeader {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.label_col_label),
-                            modifier = Modifier.weight(0.5f),
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = stringResource(id = R.string.label_col_sample_name),
-                            modifier = Modifier.weight(0.5f),
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = stringResource(id = R.string.label_col_length),
-                            modifier = Modifier.width(60.dp),
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    HorizontalDivider()
-                }
-            }
-            items(lazyPagingItems.itemSnapshotList) {
-                it?.let { sample ->
-                    CollectedDataRow(sample)
-                    HorizontalDivider()
-                }
-            }
-
-            lazyPagingItems.apply {
-                when {
-                    loadState.refresh is LoadState.Loading -> {
-                        item { LoadingIndicator(modifier = Modifier.fillParentMaxSize()) }
-                    }
-
-                    loadState.append is LoadState.Loading -> {
-                        item { LoadingIndicator() }
-                    }
-
-                    loadState.refresh is LoadState.Error -> {
-                        val e = lazyPagingItems.loadState.refresh as LoadState.Error
-                        item {
-                            Error(
-                                message = e.error.asMessage(),
-                                modifier = Modifier.fillParentMaxSize(),
-                                onClickRetry = { retry() }
+            LazyColumn(
+                state = state,
+            ) {
+                if (lazyPagingItems.itemCount > 0) {
+                    stickyHeader {
+                        Row(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surface)
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.label_col_label),
+                                modifier = Modifier.weight(0.4f),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                            Text(
+                                text = stringResource(id = R.string.label_col_sample_name),
+                                modifier = Modifier.weight(0.6f),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                            Text(
+                                text = stringResource(id = R.string.label_col_length),
+                                modifier = Modifier.width(60.dp),
+                                style = MaterialTheme.typography.labelLarge,
                             )
                         }
+                        HorizontalDivider()
                     }
+                }
 
-                    loadState.append is LoadState.Error -> {
-                        val e = lazyPagingItems.loadState.append as LoadState.Error
-                        item {
-                            ErrorItem(
-                                message = e.error.asMessage(),
-                                onClickRetry = { retry() }
-                            )
+                items(lazyPagingItems.itemSnapshotList) { sample ->
+                    sample?.let { sample ->
+                        CollectedDataRow(sample)
+                    }
+                }
+
+                lazyPagingItems.apply {
+                    when {
+                        loadState.refresh is LoadState.Loading -> {
+                            item { LoadingIndicator(modifier = Modifier.fillParentMaxSize()) }
                         }
-                    }
 
-                    loadState.refresh is LoadState.NotLoading -> {
-                        if (lazyPagingItems.itemCount == 0) item {
-                            InfoLayout(
-                                iconPainter = rememberVectorPainter(tab.icon),
-                                text = stringResource(R.string.label_no_collected_data_yet),
-                                modifier = Modifier.fillParentMaxSize()
-                            )
+                        loadState.append is LoadState.Loading -> {
+                            item { LoadingIndicator() }
+                        }
+
+                        loadState.refresh is LoadState.Error -> {
+                            val e = lazyPagingItems.loadState.refresh as LoadState.Error
+                            item {
+                                Error(
+                                    message = e.error.asMessage(),
+                                    modifier = Modifier.fillParentMaxSize(),
+                                    onClickRetry = { retry() }
+                                )
+                            }
+                        }
+
+                        loadState.append is LoadState.Error -> {
+                            val e = lazyPagingItems.loadState.append as LoadState.Error
+                            item {
+                                ErrorItem(
+                                    message = e.error.asMessage(),
+                                    onClickRetry = { retry() }
+                                )
+                            }
+                        }
+
+                        loadState.refresh is LoadState.NotLoading -> {
+                            if (lazyPagingItems.itemCount == 0) item {
+                                InfoLayout(
+                                    iconPainter = rememberVectorPainter(tab.icon),
+                                    text = stringResource(R.string.label_no_collected_data_yet),
+                                    modifier = Modifier.fillParentMaxSize()
+                                )
+                            }
                         }
                     }
                 }
@@ -195,26 +240,21 @@ fun CollectedDataRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Text(
             text = sample.label,
-            modifier = Modifier.weight(0.5f),
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold,
-            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(0.4f),
+            style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
 
         Text(
             text = sample.filename,
-            modifier = Modifier.weight(0.5f),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(0.6f),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -222,10 +262,8 @@ fun CollectedDataRow(
         Text(
             text = "${sample.totalLengthMs.toInt() / 1000}s",
             modifier = Modifier.width(60.dp),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
         )
     }
 }

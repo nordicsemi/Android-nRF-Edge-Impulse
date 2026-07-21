@@ -93,7 +93,6 @@ import no.nordicsemi.android.ei.viewmodels.state.indicatorColor
 fun Devices(
     scope: CoroutineScope,
     viewModel: DevicesViewModel,
-    modifier: Modifier = Modifier,
     configuredDevices: List<Device>,
     activeDevices: Map<String, CommsManager>,
     refreshingState: Boolean,
@@ -117,7 +116,6 @@ fun Devices(
         state = rememberPullToRefreshState(),
         isRefreshing = refreshingState,
         onRefresh = onRefresh,
-        modifier = modifier/*.padding(it)*/,
     ) {
         LazyColumn(
             modifier = Modifier
@@ -184,19 +182,16 @@ fun Devices(
             item {
                 when {
                     Utils.isSorAbove() -> BluetoothPermissionsRequired(
-                        modifier = modifier,
                         scannerState = scannerState,
                         onBluetoothStateChanged = onBluetoothStateChanged
                     )
 
                     Utils.isBetweenMarshmallowAndS() -> LocationPermissionRequired(
-                        modifier = modifier,
                         scannerState = scannerState,
                         onBluetoothStateChanged = onBluetoothStateChanged
                     )
 
                     else -> BluetoothRequired(
-                        modifier = modifier,
                         scannerState = scannerState,
                         onBluetoothStateChanged = onBluetoothStateChanged
                     )
@@ -295,7 +290,7 @@ internal fun hideBottomSheet(
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 private fun BluetoothPermissionsRequired(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     scannerState: ScannerState,
     onBluetoothStateChanged: (Boolean) -> Unit
 ) {
@@ -336,7 +331,7 @@ private fun BluetoothPermissionsRequired(
 
 @Composable
 private fun BluetoothRequired(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     scannerState: ScannerState,
     onBluetoothStateChanged: (Boolean) -> Unit
 ) {
@@ -383,7 +378,7 @@ private fun BluetoothRequired(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun LocationPermissionRequired(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     scannerState: ScannerState,
     onBluetoothStateChanged: (Boolean) -> Unit
 ) {
@@ -421,7 +416,7 @@ private fun LocationPermissionRequired(
 
 @Composable
 private fun LocationRequired(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     scannerState: ScannerState,
     onBluetoothStateChanged: (Boolean) -> Unit
 ) {
