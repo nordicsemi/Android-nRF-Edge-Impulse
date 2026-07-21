@@ -8,20 +8,16 @@
 
 package no.nordicsemi.android.ei.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -39,11 +35,11 @@ import androidx.compose.material.icons.rounded.DeveloperBoard
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +52,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -71,6 +66,7 @@ import no.nordicsemi.android.ei.model.Message.Sample.Unknown
 import no.nordicsemi.android.ei.model.Sensor
 import no.nordicsemi.android.ei.ui.layouts.BottomSheetAppBar
 import no.nordicsemi.android.ei.ui.layouts.DeviceDisconnected
+import no.nordicsemi.android.ei.ui.view.DevicesDropdownMenu
 import no.nordicsemi.android.ei.viewmodels.ProjectViewModel
 import java.util.Locale
 
@@ -271,7 +267,7 @@ private fun DeviceSelection(
             enabled = isEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
             readOnly = true,
             label = {
                 DeviceDisconnected(connectedDevices = connectedDevices)
@@ -293,7 +289,7 @@ private fun DeviceSelection(
             },
             singleLine = true
         )
-        ShowDevicesDropdown(
+        DevicesDropdownMenu(
             modifier = Modifier.exposedDropdownSize(),
             expanded = isDevicesMenuExpanded,
             connectedDevices = connectedDevices,
@@ -334,7 +330,7 @@ private fun CategorySelection(
             enabled = isEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
             readOnly = true,
             label = {
                 Text(text = stringResource(R.string.label_category))
@@ -356,10 +352,10 @@ private fun CategorySelection(
             },
             singleLine = true
         )
-        ShowDropdown(
+        DropdownMenu(
             modifier = Modifier.exposedDropdownSize(),
             expanded = isCategoryExpanded,
-            onDismiss = {
+            onDismissRequest = {
                 isCategoryExpanded = false
             }
         ) {
@@ -448,7 +444,7 @@ private fun SensorSelection(
             onValueChange = { },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
             enabled = isEnabled,
             readOnly = true,
             label = {
@@ -471,10 +467,10 @@ private fun SensorSelection(
             singleLine = true
         )
         dataAcquisitionTarget?.let { device ->
-            ShowDropdown(
+            DropdownMenu(
                 modifier = Modifier.exposedDropdownSize(),
                 expanded = isSensorsMenuExpanded,
-                onDismiss = {
+                onDismissRequest = {
                     isSensorsMenuExpanded = false
                 }) {
                 device.sensors.forEach { sensor ->
@@ -627,7 +623,7 @@ private fun FrequencySelection(
             onValueChange = { },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
+                .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = isEnabled),
             enabled = isEnabled,
             readOnly = true,
             label = { Text(text = stringResource(R.string.label_frequency)) },
@@ -648,10 +644,10 @@ private fun FrequencySelection(
             singleLine = true
         )
         selectedSensor?.let { sensor ->
-            ShowDropdown(
+            DropdownMenu(
                 modifier = Modifier.exposedDropdownSize(),
                 expanded = isFrequencyMenuExpanded,
-                onDismiss = {
+                onDismissRequest = {
                     isFrequencyMenuExpanded = false
                 }
             ) {
@@ -673,63 +669,6 @@ private fun FrequencySelection(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ShowDevicesDropdown(
-    modifier: Modifier,
-    connectedDevices: List<Device>,
-    expanded: Boolean,
-    onDeviceSelected: (Device) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    ShowDropdown(
-        modifier = modifier,
-        expanded = expanded,
-        onDismiss = onDismiss,
-        content = {
-            connectedDevices.forEach { device ->
-                DropdownMenuItem(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .padding(start = 8.dp)
-                                    .background(color = Color.Green, shape = CircleShape)
-                            )
-                            Text(
-                                modifier = Modifier
-                                    .weight(1.0f)
-                                    .padding(start = 16.dp),
-                                text = device.name
-                            )
-                        }
-                    },
-                    onClick = { onDeviceSelected(device) }
-                )
-            }
-        }
-    )
-}
-
-@Composable
-fun ShowDropdown(
-    modifier: Modifier,
-    expanded: Boolean,
-    onDismiss: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    DropdownMenu(
-        modifier = modifier,
-        expanded = expanded,
-        onDismissRequest = onDismiss
-    ) {
-        content()
     }
 }
 

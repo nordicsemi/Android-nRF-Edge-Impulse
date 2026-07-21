@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ModelTraining
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.ui.graphics.vector.ImageVector
+import no.nordicsemi.android.common.ui.view.PagerViewEntity
 
 /**
  * HorizontalPagerTab

@@ -83,10 +83,7 @@ sealed class Message {
 
         }
 
-        data class Finished(
-            val sampleFinished: Boolean = true,
-            val error: String? = null
-        ) : Sample()
+        data class Finished(val error: String? = null) : Sample()
 
         object Unknown : Sample()
     }

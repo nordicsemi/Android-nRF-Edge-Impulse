@@ -86,7 +86,6 @@ import no.nordicsemi.android.ei.model.Message
 import no.nordicsemi.android.ei.model.Message.Sample.Finished
 import no.nordicsemi.android.ei.model.Message.Sample.Unknown
 import no.nordicsemi.android.ei.ui.layouts.AlertDialog
-import no.nordicsemi.android.ei.ui.layouts.TabTopAppBar1
 import no.nordicsemi.android.ei.ui.layouts.isScrollingUp
 import no.nordicsemi.android.ei.ui.theme.NordicMiddleGrey
 import no.nordicsemi.android.ei.viewmodels.DataAcquisitionViewModel
@@ -318,10 +317,9 @@ private fun ProjectContent(
     val testingListState = rememberLazyListState()
     val listStates = listOf(trainingListState, testingListState)
     val inferencingState by remember { viewModel.inferencingState }
-    val inferencingResults by remember {
-        viewModel.inferencingResults
-    }
+    val inferencingResults by remember { viewModel.inferencingResults }
     var isWarningDialogVisible by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.eventFlow.collect {
@@ -335,7 +333,6 @@ private fun ProjectContent(
                             }
                         )
                     }
-
                     else -> {}
                 }
             }
@@ -343,12 +340,9 @@ private fun ProjectContent(
     }
     Scaffold(
         topBar = {
-            ProjectTopAppBar(
-                /*modifier = Modifier.fillMaxWidth(),*/
-                projectName = viewModel.project.name,
-                selectedScreen = selectedScreen,
-                pagerState = pagerState,
-                onBackPressed = {
+            NordicAppBar(
+                title = { Text(text = viewModel.project.name) },
+                onNavigationButtonClick = {
                     // We should only exit this screen if the backdrop is revealed and no devices
                     // are connected.
                     when (connectedDevices.isNotEmpty()) {
@@ -356,6 +350,7 @@ private fun ProjectContent(
                         false -> onBackPressed()
                     }
                 },
+                showBackButton = true
             )
         },
         bottomBar = { ProjectBottomNavigation(navController = navController) },
@@ -371,8 +366,7 @@ private fun ProjectContent(
             }
         }
     ) { innerPadding ->
-        val padding = innerPadding.calculateTopPadding()
-        Column(modifier = Modifier.padding(top = padding/*, bottom = padding*/)) {
+        Column(modifier = Modifier.padding(paddingValues = innerPadding)) {
             SamplingMessage(
                 isSamplingMessageVisible = isSamplingMessageVisible,
                 onSamplingMessageDismissed = onSamplingMessageDismissed,
@@ -397,8 +391,6 @@ private fun ProjectContent(
                     Devices(
                         scope = scope,
                         viewModel = devicesViewModel,
-                        modifier = Modifier
-                            .fillMaxSize(),
                         configuredDevices = viewModel.configuredDevices,
                         activeDevices = viewModel.commsManagers,
                         refreshingState = viewModel.isRefreshing,
@@ -422,7 +414,6 @@ private fun ProjectContent(
                         onBack = onBackPressed
                     )
                     DataAcquisition(
-                        modifier = Modifier.fillMaxSize(),
                         pagerState = pagerState,
                         listStates = listStates,
                         samples = listOf(
@@ -434,7 +425,6 @@ private fun ProjectContent(
                 }
                 composable(route = BottomNavigationScreen.DEPLOYMENT.route) {
                     Deployment(
-                        modifier = Modifier.fillMaxSize(),
                         project = viewModel.project,
                         connectedDevices = connectedDevices,
                         deploymentTarget = viewModel.deploymentTarget,
@@ -446,7 +436,6 @@ private fun ProjectContent(
                 }
                 composable(route = BottomNavigationScreen.INFERENCING.route) {
                     InferencingScreen(
-                        modifier = Modifier.fillMaxSize(),
                         connectedDevices = connectedDevices,
                         inferenceResults = inferencingResults,
                         inferencingTarget = viewModel.inferencingTarget,
@@ -480,87 +469,6 @@ private fun ProjectContent(
             }
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@Composable
-private fun ProjectTopAppBar(
-    projectName: String,
-    selectedScreen: BottomNavigationScreen,
-    pagerState: PagerState,
-    onBackPressed: () -> Unit
-) {
-    val tabs = listOf(HorizontalPagerTab.TRAINING, HorizontalPagerTab.TESTING)
-
-    when (selectedScreen) {
-        BottomNavigationScreen.DATA_ACQUISITION -> {
-            TabTopAppBar1(
-                title = { Title(text = projectName) },
-                tabs = tabs.map {
-                    val text = @Composable {
-                        Text(
-                            text = stringResource(id = it.title),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    val icon = @Composable {
-                        Icon(
-                            imageVector = it.icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    text to icon
-                },
-                pagerState = pagerState,
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
-            )
-        }
-
-        else -> {
-            NordicAppBar(
-                title = { Text(text = projectName) },
-                onNavigationButtonClick = onBackPressed,
-                showBackButton = true
-            )
-            /*TopAppBar(
-                title = { Title(text = projectName) },
-                modifier = modifier,
-                navigationIcon = {
-                    IconButton(onClick = {
-                        onBackPressed()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )*/
-        }
-    }
-}
-
-@Composable
-private fun Title(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        modifier = modifier.padding(end = 16.dp),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        color = MaterialTheme.colorScheme.onPrimary,
-    )
 }
 
 @Composable
@@ -605,9 +513,7 @@ private fun ProjectBottomNavigation(
                             restoreState = true
                         }
                     }
-                }/*,
-                selectedContentColor = MaterialTheme.colorScheme.primaryVariant,
-                unselectedContentColor = LocalContentColor.current.copy(alpha = 0.6f)*/
+                }
             )
         }
     }
